@@ -58,7 +58,13 @@ def static_example_img():
     end = '">'
     return start+url+end, 200
 
-
+# Used to control how the Python module and the flask app server is run.
+# We only want to use app.run() if this script is executed from the Python interpreter,
+# e.g. by calling $python hello.py. If we were to use an app server instead then the
+# app.run() would be performed differently
 if __name__ == "__main__":
-    print("test if __name__ == '__main__' in hello.py")
+    # Calls the run() function of the Flask app class instance to start our development
+    # server running using this app as the web app. This line also tells the app to run
+    # on a network interface that is accessible from an external address
+    # otherwise our app would only be accessible within the dev server
     app.run(host='0.0.0.0', debug=True)

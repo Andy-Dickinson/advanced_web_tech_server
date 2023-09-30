@@ -1,0 +1,13 @@
+/* Used to style index.html in templates directory for simple_quiz_html_files.py example */
+
+body{
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 0 10px;
+    font: 18px/1.5 -apple-system, BlinkMacSystemFont, "avenir next", avenir, "Segoe UI", "lucida grande", "helvetica neue", helvetica, "Fira Sans", roboto, noto, "Droid Sans", cantarell, oxygen, ubuntu, "franklin gothic medium", "centry gothic", "Liberation Sans", sans-serif;
+    color: #444;
+}
+
+h1,h2,h3{
+    line-height: 1.2;
+}
