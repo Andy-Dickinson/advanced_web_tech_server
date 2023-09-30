@@ -21,6 +21,10 @@ Run flask app from vm ('hello' is name of app, need to be in same directory as a
 if above doesn't work, try:
 Run flask app locally (use local host address - top one):
 	python -m flask --app hello run --host=0.0.0.0 --port=8080
+	
+
+Debug mode:
+	flask --app hello run --debug --host=0.0.0.0 --port=8080
 
 
 Deactivate:

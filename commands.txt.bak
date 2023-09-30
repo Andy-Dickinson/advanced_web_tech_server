@@ -25,3 +25,11 @@ Run flask app locally (use local host address - top one):
 
 Deactivate:
 deactivate
+
+
+
+Create requirements package list:
+pip freeze > requirements.txt
+
+Install from requirements package list:
+pip install -r /path/to/requirements.txt
