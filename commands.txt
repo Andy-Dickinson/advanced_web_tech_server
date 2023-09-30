@@ -1,0 +1,35 @@
+To run virtual environment (use cmd):
+	(from within virtualenv directory):
+		.\venv\Scripts\activate
+	(from anywhere):
+		C:\Users\ajdpi\OneDrive\Desktop\virtualenv\venv\Scripts\activate
+		
+cd git repo:
+cd C:\Users\ajdpi\OneDrive - Edinburgh Napier University\GitHub repositories\set09103_advanced_web_tech
+
+
+To run below in debug mode, add --debug flag
+Two important features of the debug mode are
+1. Causing the development server to automatically restarted each time we change our
+code, e.g. each time we save (:w <ENTER>) our file after editing it in Vim.
+2. Printing out debug information and a Python stack trace in the browser so that we
+can work out what went wrong.
+
+Run flask app from vm ('hello' is name of app, need to be in same directory as app) (running locally? use local host address - top one):
+	flask --app hello run --host=0.0.0.0 --port=8080
+
+if above doesn't work, try:
+Run flask app locally (use local host address - top one):
+	python -m flask --app hello run --host=0.0.0.0 --port=8080
+
+
+Deactivate:
+deactivate
+
+
+
+Create requirements package list:
+pip freeze > requirements.txt
+
+Install from requirements package list:
+pip install -r /path/to/requirements.txt
