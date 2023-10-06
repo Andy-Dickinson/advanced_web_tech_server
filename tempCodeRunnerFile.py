@@ -1,8 +1,12 @@
-@app.route("/passAparam/")
-# def hello():
-#     name = request.args.get('name', '')
+from flask import Flask, render_template
+app = Flask(__name__)
 
-#     if name == "":
-#         return "no param supplied"
-#     else:
-#         return "Hello %s" % name
+
+@app.route('/hello/<name>')
+def hello(name=None):
+    user = {'name':name}
+    return render_template('hello.html', user=user)
+
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', debug=True)
