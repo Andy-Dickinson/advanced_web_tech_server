@@ -37,3 +37,19 @@ pip freeze > requirements.txt
 
 Install from requirements package list:
 pip install -r /path/to/requirements.txt
+
+
+ping server from command line using curl:
+-i Include protocol response headers in the output
+-X Specify request command to use
+-d Specifies data to be sent in the request body
+-v (verbose) print more information about what server is sending and recieving, 1st part request from client, 2nd part response from server 
+curl -i -X <request> -d "<data>" <url>:<port/route/>
+
+
+
+Inspect the request and response headers in chrome: 
+To do this navigate to the page you want to inspect the request for, 
+then open the developer tools and select the ‘Network’ tab and refresh the page. 
+Now select the URL in the list on the left hand side of the page 
+then the ‘Headers’ tab on the right hand side

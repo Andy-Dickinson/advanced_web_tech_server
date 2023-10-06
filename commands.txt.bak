@@ -21,6 +21,10 @@ Run flask app from vm ('hello' is name of app, need to be in same directory as a
 if above doesn't work, try:
 Run flask app locally (use local host address - top one):
 	python -m flask --app hello run --host=0.0.0.0 --port=8080
+	
+
+Debug mode:
+	flask --app hello run --debug --host=0.0.0.0 --port=8080
 
 
 Deactivate:
@@ -33,3 +37,11 @@ pip freeze > requirements.txt
 
 Install from requirements package list:
 pip install -r /path/to/requirements.txt
+
+
+ping server from command line using curl:
+-i Include protocol response headers in the output
+-X Specify request command to use
+-d Specifies data to be sent in the request body
+-v (verbose) print more information about what server is sending and recieving, 1st part request from client, 2nd part response from server 
+curl -i -X <request> -d "<data>" <url>:<port/route/>

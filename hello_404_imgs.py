@@ -12,7 +12,7 @@ app = Flask(__name__)
 # Here when browser hits root of url ('/')
 @app.route('/')
 def hello_world():
-    return 'The default, "root" route'
+    return 'The default, "root" route' # return values from a function are automatically turned into a valid HTML response object. If String, used as the body of a response. 200/OK HTTP status code is also returned by default
 
 
 # accessed via 'home_url/hello/' or 'ip:port/hello/'
@@ -57,6 +57,7 @@ def static_example_img():
     url = url_for('static', filename='/img/vmask.jpg')
     end = '">'
     return start+url+end, 200
+
 
 # Used to control how the Python module and the flask app server is run.
 # We only want to use app.run() if this script is executed from the Python interpreter,
