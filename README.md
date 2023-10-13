@@ -10,3 +10,6 @@ templates dir
 
 etc dir
     - stores config files (for Flask / app)
+
+var dir
+    - stores log files

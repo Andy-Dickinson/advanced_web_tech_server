@@ -1,5 +1,7 @@
 # example file for how you would use a config file
 
+# MUST run using python to correctly use the config file, will not work running with flask
+
 import configparser
 
 from flask import Flask
@@ -7,6 +9,7 @@ from flask import Flask
 app = Flask(__name__)
 
 
+# initialises app configurations
 def init(app):
     config = configparser.ConfigParser()
     try:
