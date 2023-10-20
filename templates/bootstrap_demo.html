@@ -1,6 +1,3 @@
-<!-- original exercise in server side book was with bootstrap v3.3.5 
-this example has been updated to work with v5.3 -->
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -14,43 +11,51 @@ this example has been updated to work with v5.3 -->
       href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
     />
 
-    <!-- pushes page content below the navigation bar -->
-    <style>
+    <!-- pushes page content below the navigation bar - optional -->
+    <!-- <style>
       body {
         padding-top: 50px;
       }
-    </style>
+    </style> -->
   </head>
   <body>
     <!-- container for nav bar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-      <div class="container">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">ProjectName</a>
         <button
           type="button"
-          class="navbar-toggler collapsed"
+          class="navbar-toggler"
           data-bs-toggle="collapse"
-          data-bs-target="#navbar"
+          data-bs-target="#navbarSupportedContent"
           aria-expanded="false"
-          aria-controls="navbar"
+          aria-controls="navbarSupportedContent"
           aria-label="Toggle navigation"
         >
           <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="navbar-brand" href="#">ProjectName</a>
-      </div>
-      <div id="navbar" class="collapse navbar-collapse">
-        <ul class="navbar-nav">
-          <li class="nav-item active"><a class="nav-link" href="#">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="#about">About</a></li>
-          <li class="nav-item">
-            <a class="nav-link" href="#contact">Contact</a>
+    
+      <div id="navbarSupportedContent" class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link active" aria-current="page" href="#">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="#link">Link</a></li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Dropdown</a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#action">Action</a></li>
+              <li><a class="dropdown-item" href="#another_action">Another action</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#Something_else">Something else here</a></li>
+            </ul>
           </li>
+          <li class="nav-item"><a class="nav-link disabled" aria-disabled="true">Disabled</a></li>
         </ul>
+        <form class="d-flex" role="search"><input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"><button class="btn btn-outline-success" type="submit">Search</button></form>
       </div>
     </nav>
 
     <!-- container for page content -->
-    <div class="container mt-5">
+    <div class="container">
       <h1>HELLO</h1>
       <h2>Napier</h2>
       <p class="lead">
@@ -59,14 +64,7 @@ this example has been updated to work with v5.3 -->
       </p>
     </div>
 
-    <!-- script for jQuery 
-    Possibly not required as Bootstrap v5.3 does not require jQuery for most functionality -->
-    <script
-      src="https://code.jquery.com/jquery-3.7.1.min.js"
-      integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-      crossorigin="anonymous"
-    ></script>
     <!-- script for Bootstrap JS -->
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
   </body>
 </html>
