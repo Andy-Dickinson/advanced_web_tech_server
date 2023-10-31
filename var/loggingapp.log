@@ -1,8 +1,0 @@
-WARNING | 2023-10-13 18:37:01,045 | logging_app | root | Logging a test message from /
-WARNING | 2023-10-13 18:37:01,045 | logging_app | root | Logging a test message from /
-DEBUG | 2023-10-13 18:37:20,518 | logging_app | root | Logging a test message from /
-DEBUG | 2023-10-13 18:37:20,518 | logging_app | root | Logging a test message from /
-ERROR | 2023-10-13 18:37:27,685 | logging_app | root | Logging a test message from /
-ERROR | 2023-10-13 18:37:27,685 | logging_app | root | Logging a test message from /
-INFO | 2023-10-13 18:37:57,721 | logging_app | root | Logging a test message from /
-INFO | 2023-10-13 18:37:57,721 | logging_app | root | Logging a test message from /
