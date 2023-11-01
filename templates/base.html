@@ -7,10 +7,21 @@
     <!-- stylesheet link for bootstrap css -->
     <link
       rel="stylesheet"
-      href="{{ url_for('static', filename='css/bootstrap.min.css') }}"
-    />
+      href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}"/>
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- font awesome for icons -->
+    <script src="{{ url_for('static', filename='img/icons/fontawesome/all.js')}}"></script>
+
+    <!-- google fonts -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/google_fonts/varela.css')}}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/google_fonts/nunito.css')}}">
+
+    <!-- main style sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+
+    {% block modal_script %}
+        <script src="{{ url_for('static', filename='js/base_modal.js') }}"></script>
+    {% endblock %}
 
     <title>
         {% block title %}
@@ -20,36 +31,39 @@
 
   </head>
 
-  <body>
+  <body id="page-top">
     <!-- navbar - uses bootstrap classes -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-dark">
-      <div class="container-fluid" id="navbar">
-        <a class="navbar-brand" href="/">Website Name</a>
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainnav">
+      <div class="container px-4 px-lg-5" id="navbar">
+        <a class="navbar-brand" href="#page-top">Tee Time Hub</a>
         <!-- button extends navbar for mobile devices / small window -->
         <button
           type="button"
-          class="navbar-toggler"
+          class="navbar-toggler navbar-toggler-right"
           data-bs-toggle="collapse"
-          data-bs-target="#navbar"
+          data-bs-target="#navbarResponsive"
           aria-expanded="false"
-          aria-controls="navbar"
+          aria-controls="navbarResponsive"
           aria-label="Toggle navigation"
         >
-          <!-- loads navbar button icon -->
-          <span class="navbar-toggler-icon"></span>
+          Menu 
+          <i class="fas fa-bars"></i>
         </button>
 
         <!-- navigation items in navbar -->
         <!-- collapsable navbar -->
-        <div class="collapse navbar-collapse" id="navbar">
+        <div class="collapse navbar-collapse" id="navbarResponsive">
           <!-- actual navigation items -->
-          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
+
+            <!-- changeable nav items -->
             {% block nav_items %}
                 <li class="nav-item ">
-                    <a class="nav-link active" id="home" href="#modal Login">Log in</a>
+                    <a class="nav-link" onclick="openModal('login')">Log in</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link active" id="logout" href="#modal sign up">Sign up</a>
+                    <a class="nav-link" onclick="openModal('signup')">Sign up</a>
                 </li> 
             {% endblock %}
           </ul>
@@ -88,15 +102,96 @@
         {% endif %} 
     {% endwith %}
 
-    <!-- main content of page -->
-    <div class="container">
-        {% block content %} 
-            <h1>Test Content Header</h1>
-            <p>Test para</p>
-        {% endblock %}
+
+
+    <!-- main content -->
+    {% block content %} 
+        <header class="mainheader">
+            <div class="header-content">
+                <h1>Tee Time Hub</h1>
+                <h2>Empowering Your Play:<br/>The Ultimate Event Coordinator!</h2>
+            </div>
+            <div class="header-button">
+                <a class="btn btn-primary" onclick="openModal('login')">Get Started</a>
+            </div>
+        </header>
+    {% endblock %}
+
+
+     <!-- Contact-->
+     <section class="contact-section bg-black" id="contact">
+      <div class="container px-4 px-lg-5">
+          <div class="row gx-4 gx-lg-5">
+              <div class="col-md-4 mb-3 mb-md-0">
+                  <div class="card py-4 h-100">
+                      <div class="card-body text-center">
+                          <i class="fas fa-map-marked-alt text-primary mb-2"></i>
+                          <h4 class="text-uppercase m-0">Address</h4>
+                          <hr class="my-4 mx-auto" />
+                          <div class="small text-black-50">10 Colinton Rd, Edinburgh EH10 5DT</div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-4 mb-3 mb-md-0">
+                  <div class="card py-4 h-100">
+                      <div class="card-body text-center">
+                          <i class="fas fa-envelope text-primary mb-2"></i>
+                          <h4 class="text-uppercase m-0">Email</h4>
+                          <hr class="my-4 mx-auto" />
+                          <div class="small text-black-50"><a href="#!">contact-us@TeeTimeHub.com</a></div>
+                      </div>
+                  </div>
+              </div>
+              <div class="col-md-4 mb-3 mb-md-0">
+                  <div class="card py-4 h-100">
+                      <div class="card-body text-center">
+                          <i class="fas fa-mobile-alt text-primary mb-2"></i>
+                          <h4 class="text-uppercase m-0">Phone</h4>
+                          <hr class="my-4 mx-auto" />
+                          <div class="small text-black-50">+44 123 456 7895</div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="social d-flex justify-content-center">
+              <a class="mx-2" href="#!"><i class="fab fa-twitter"></i></a>
+              <a class="mx-2" href="#!"><i class="fab fa-facebook-f"></i></a>
+              <a class="mx-2" href="#!"><i class="fab fa-github"></i></a>
+          </div>
+      </div>
+  </section>
+
+
+
+  <!-- Footer-->
+  <footer class="footer bg-black small text-center text-white-50"><div class="container px-4 px-lg-5">Copyright &copy; Tee Time Hub 2023</div></footer>
+
+
+
+<!-- hidden trigger button for modal, when route calls a page which makes use of it, should include event listener and click function -->
+<button type="button" id="modalTrigger" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal" style="display: none;"></button>
+
+<!-- Include Modal Structure -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="myModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
     </div>
+</div>
+
+
+    <!-- jquery library, must be included prior to bootstrap -->
+    <script src="{{ url_for('static', filename='js/jquery/jquery.js') }}"></script>
 
     <!-- script for Bootstrap JS -->
-    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
   </body>
 </html>
+
+

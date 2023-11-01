@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- stylesheet link for bootstrap css -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}"
+    />
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+
+    <title>
+        {% block title %}
+            Home
+        {% endblock %}
+    </title>
+
+  </head>
+
+  <body>
+    <!-- navbar - uses bootstrap classes -->
+    <nav class="navbar navbar-expand-lg navbar-light" id="navbar">
+      <div class="container-fluid" id="navbar">
+        <a class="navbar-brand" href="/">Website Name</a>
+        <!-- button extends navbar for mobile devices / small window -->
+        <button
+          type="button"
+          class="navbar-toggler"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbar"
+          aria-expanded="false"
+          aria-controls="navbar"
+          aria-label="Toggle navigation"
+        >
+          <!-- loads navbar button icon -->
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- navigation items in navbar -->
+        <!-- collapsable navbar -->
+        <div class="collapse navbar-collapse" id="navbar">
+          <!-- actual navigation items -->
+          <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            {% block nav_items %}
+                <li class="nav-item ">
+                    <a class="nav-link active" id="home" href="#modal Login">Log in</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" id="logout" href="#modal sign up">Sign up</a>
+                </li> 
+            {% endblock %}
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <!-- displays flash messages to user -->
+    {% with messages = get_flashed_messages(with_categories=true) %} 
+        {% if messages %} 
+            {% for category, message in messages %} 
+                {% if category == 'error' %}
+                    <!-- bootstrap class for error message -->
+                    <div class="alert alert-danger alter-dismissable fade show" role="alert">
+                    <!-- actual message -->
+                    {{ message }}
+                    <!-- button to close message -->
+                    <button type="button" class="close" data-dismiss="alert">
+                        <!-- x character to close -->
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                {% else %}
+                    <!-- bootstrap class for success message -->
+                    <div class="alert alert-success alter-dismissable fade show" role="alert">
+                    <!-- actual message -->
+                    {{ message }}
+                    <!-- button to close message -->
+                    <button type="button" class="close" data-dismiss="alert">
+                        <!-- x character to close -->
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    </div>
+                {% endif %} 
+            {% endfor %} 
+        {% endif %} 
+    {% endwith %}
+
+    <!-- main content of page -->
+    <div class="container">
+        {% block content %} 
+            <h1>Test Content Header</h1>
+            <p>Test para</p>
+        {% endblock %}
+    </div>
+
+    <!-- script for Bootstrap JS -->
+    <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
+  </body>
+</html>
