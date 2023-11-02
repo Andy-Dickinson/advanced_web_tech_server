@@ -1,4 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy, UniqueConstraint
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import UniqueConstraint
 from datetime import datetime
 
 db = SQLAlchemy()
@@ -22,7 +23,7 @@ class User(db.Model):
     
     # string representation
     def __repr__(self):
-        return f'<User {self.username}>'
+        return f'<User id:{self.username}, first:{self.first_name}, surname:{self.surname}, handicap:{self.handicap_index}, email:{self.email}, password:{self.password}, admin:{self.is_admin}, subscriptions_relationship:{self.subscriptions}, chats_relationship:{self.chats}, events_relationship:{self.events}, messages_relationship:{self.messages}>'
     
 
 class User_subscription(db.Model):
@@ -31,6 +32,10 @@ class User_subscription(db.Model):
     club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'), nullable=False)
 
     __table_args__ = (UniqueConstraint('user_id', 'club_id'),)
+
+    # string representation
+    def __repr__(self):
+        return f'<Subscriptions id:{self.subscription_id}, user:{self.user_id}, club_id:{self.club_id}>'
 
 
 class Club(db.Model):
@@ -45,6 +50,10 @@ class Club(db.Model):
     subscriptions = db.relationship('User_subscription', backref='club')
     events = db.relationship('Event', backref='club')
 
+    # string representation
+    def __repr__(self):
+        return f'<Club id:{self.club_id}, name:{self.club_name}, url:{self.club_url}, address:{self.club_address}, postcode:{self.club_postcode}, phone:{self.club_phone_number}, approved:{self.approved}, subscriptions_relationship:{self.subscriptions}, events_relationship:{self.events}>'
+
     
 class Chat(db.Model):
     chat_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -53,6 +62,10 @@ class Chat(db.Model):
 
     messages = db.relationship('Message', backref='chat')
     event = db.relationship('Event', back_populates='chat', uselist=False)
+
+    # string representation
+    def __repr__(self):
+        return f'<Chat id:{self.chat_id}, user:{self.user_id}, event_id:{self.event_id}, messages_relationship:{self.messages}, event_relationship:{self.event}>'
 
 
 class Message(db.Model):
@@ -65,12 +78,16 @@ class Message(db.Model):
     
     def timestamp_as_iso(self):
         return self.timestamp.isoformat()
+    
+    # string representation
+    def __repr__(self):
+        return f'<Message id:{self.message_id}, chat:{self.chat_id}, user:{self.user_id}, message:{self.message}, timestamp_stored:{self.timestamp}, timestamp_as_iso:({self.timestamp_as_iso()}, active:{self.active})>'
 
 
 class Event(db.Model):
     event_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id_creator = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-    club_id = db.Column(db.Integer, db.ForgeignKey('club.club_id'), nullable=False)
+    club_id = db.Column(db.Integer, db.ForeignKey('club.club_id'), nullable=False)
     event_name = db.Column(db.String(100))
     event_description = db.Column(db.String(500))
     planned_datetime = db.Column(db.DateTime)
@@ -83,7 +100,9 @@ class Event(db.Model):
 
     chat = db.relationship('Chat', back_populates='event', uselist=False, cascade='all, delete-orphan')
 
-    def timestamp_as_iso(self):
-        return self.timestamp.isoformat()
+    def datetime_as_iso(self):
+        return self.planned_datetime.isoformat()
     
-
+    # string representation
+    def __repr__(self):
+        return f'<Event id:{self.event_id}, user_creator:{self.user_id_creator}, club:{self.club_id}, event_name:{self.event_name}, description:{self.event_description}, planned_datetime_stored:{self.planned_datetime}, planned_datetime_iso:({self.datetime_as_iso()}), max_capacity:{self.max_capacity}, min_hc:{self.min_hc}, max_hc:{self.max_hc}, current_participants:{self.current_participants}, tee_time_booked:{self.tee_time_booked}, event_open:{self.event_open})>'

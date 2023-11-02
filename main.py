@@ -1,9 +1,9 @@
-from flask import Flask, render_template, request, flash
+from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user # anything on current user can be accessed via current_user
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
-from .models import User, User_subscription, Club, Chat, Message, Event
+from models import User, User_subscription, Club, Chat, Message, Event
 
 db = SQLAlchemy()
 
@@ -49,15 +49,15 @@ def base():
 
 @app.route('/login', methods=['POST'])
 def login():
-    # ---------------------------------------------------------------------
+    return redirect(url_for('base'))# ---------------------------------------------------------------------
 
 
 @app.route('/signup', methods=['POST'])
 def signup():
-    # --------------------------------------------------------------------
+    return redirect(url_for('base')) # --------------------------------------------------------------------
 
 
-# need to redirect if not authenticated --------------------------------------------------------------------------
+# check redirected if not authenticated --------------------------------------------------------------------------
 @app.route('/home')
 @login_required
 def home():

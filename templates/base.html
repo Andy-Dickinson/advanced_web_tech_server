@@ -4,17 +4,20 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- favicon -->
+    <link rel="shortcut icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}" />
+
     <!-- stylesheet link for bootstrap css -->
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/bootstrap/bootstrap.min.css') }}"/>
 
     <!-- font awesome for icons -->
-    <script src="{{ url_for('static', filename='img/icons/fontawesome/all.js')}}"></script>
+    <script src="{{ url_for('static', filename='img/icons/fontawesome/all.js') }}"></script>
 
     <!-- google fonts -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/google_fonts/varela.css')}}"/>
-    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/google_fonts/nunito.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/google_fonts/varela.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/google_fonts/nunito.css') }}">
 
     <!-- main style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
@@ -193,5 +196,4 @@
     <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
   </body>
 </html>
-
 

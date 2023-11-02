@@ -1,5 +1,3 @@
-// NEED TO FIND A WAY TO PASS IN OR USE ROUTES FOR THE HREF URL
-
 function openModal(modalType) {
     const modal = document.getElementById("myModal");
     const modalTitle = modal.querySelector(".modal-title");
@@ -20,7 +18,7 @@ function openModal(modalType) {
         user_gp.className = "form-group";
         const user_label = document.createElement('label');
         user_label.for = "username";
-        user_label.innerHTML = "Username";
+        user_label.innerHTML = "Username: ";
         user_gp.appendChild(user_label);
         const user_input = document.createElement('input');
         user_input.type = "text";
@@ -36,7 +34,7 @@ function openModal(modalType) {
         pw_gp.className = "form-group";
         const pw_label = document.createElement('label');
         pw_label.for = "password";
-        pw_label.innerHTML = "Password";
+        pw_label.innerHTML = "Password: ";
         pw_gp.appendChild(pw_label);
         const pw_input = document.createElement('input');
         pw_input.type = "password";
@@ -82,7 +80,7 @@ function openModal(modalType) {
         user_gp.className = "form-group";
         const user_label = document.createElement('label');
         user_label.for = "username";
-        user_label.innerHTML = "Username";
+        user_label.innerHTML = "Username: ";
         user_gp.appendChild(user_label);
         const user_input = document.createElement('input');
         user_input.type = "text";
@@ -98,7 +96,7 @@ function openModal(modalType) {
         fName_gp.className = "form-group";
         const fName_label = document.createElement('label');
         fName_label.for = "first_name";
-        fName_label.innerHTML = "First name";
+        fName_label.innerHTML = "First name: ";
         fName_gp.appendChild(fName_label);
         const fName_input = document.createElement('input');
         fName_input.type = "text";
@@ -114,7 +112,7 @@ function openModal(modalType) {
         sName_gp.className = "form-group";
         const sName_label = document.createElement('label');
         sName_label.for = "surname";
-        sName_label.innerHTML = "Surname";
+        sName_label.innerHTML = "Surname: ";
         sName_gp.appendChild(sName_label);
         const sName_input = document.createElement('input');
         sName_input.type = "text";
@@ -130,7 +128,7 @@ function openModal(modalType) {
         hc_gp.className = "form-group";
         const hc_label = document.createElement('label');
         hc_label.for = "handicap";
-        hc_label.innerHTML = "Handicap Index";
+        hc_label.innerHTML = "Handicap Index: ";
         hc_gp.appendChild(hc_label);
         const hc_input = document.createElement('input');
         hc_input.type = "text";
@@ -146,7 +144,7 @@ function openModal(modalType) {
         email_gp.className = "form-group";
         const email_label = document.createElement('label');
         email_label.for = "email";
-        email_label.innerHTML = "Email";
+        email_label.innerHTML = "Email: ";
         email_gp.appendChild(email_label);
         const email_input = document.createElement('input');
         email_input.type = "email";
@@ -162,7 +160,7 @@ function openModal(modalType) {
         pw_gp.className = "form-group";
         const pw_label = document.createElement('label');
         pw_label.for = "password";
-        pw_label.innerHTML = "Password";
+        pw_label.innerHTML = "Password: ";
         pw_gp.appendChild(pw_label);
         const pw_input = document.createElement('input');
         pw_input.type = "password";
@@ -178,7 +176,7 @@ function openModal(modalType) {
         pw2_gp.className = "form-group";
         const pw2_label = document.createElement('label');
         pw2_label.for = "password2";
-        pw2_label.innerHTML = "Confirm password";
+        pw2_label.innerHTML = "Confirm password: ";
         pw2_gp.appendChild(pw2_label);
         const pw2_input = document.createElement('input');
         pw2_input.type = "password";
@@ -201,7 +199,20 @@ function openModal(modalType) {
 
         // Append the content div to the modal content
         modalContent.appendChild(form);
+
+        // Link to switch to the log-in modal
+        const switchToLoginLink = document.createElement('a');
+        switchToLoginLink.href = "javascript:void(0);";
+        switchToLoginLink.textContent = "Already have an account? Log in here";
+        switchToLoginLink.onclick = function () {
+            openModal('login'); // Change the modal type to 'signup' when clicked
+        };
+
+        // Append the login form and the switch link to the modal content
+        modalContent.appendChild(switchToLoginLink);
     }
     
     $(modal).modal("show");
 }
+
+
