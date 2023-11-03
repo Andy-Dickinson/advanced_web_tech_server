@@ -47,12 +47,12 @@
 }
 
 #mainnav {
-    background: linear-gradient(180deg, #a6b3ff, #d8defe);;
+    background: linear-gradient(180deg, #a6b3ff, #d8defe);
 }
 
 
 body {
-    font-family: Nunito, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple 
+    font-family: Nunito, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple; 
 }
 
 
@@ -66,3 +66,39 @@ body {
     border: 0;
     background: linear-gradient(180deg, #0221CF, #6a7dec);
   }
+
+
+.modal {
+    z-index: 9990;
+}
+
+
+.flash-messages {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 9980;
+}
+
+
+.alert {
+    z-index: 9999; /* Ensure higher than modal's z-index */
+}
+
+
+.alert.modal-error-message {
+    width: 100vw; 
+    height: 1.8rem; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0; 
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+
+
+
+

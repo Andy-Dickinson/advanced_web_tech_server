@@ -22,6 +22,9 @@
     <!-- main style sheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
 
+    <!-- common functions -->
+    <script src="{{ url_for('static', filename='js/validate_errors.js') }}"></script>
+
     {% block modal_script %}
         <script src="{{ url_for('static', filename='js/base_modal.js') }}"></script>
     {% endblock %}
@@ -75,36 +78,38 @@
     </nav>
 
     <!-- displays flash messages to user -->
-    {% with messages = get_flashed_messages(with_categories=true) %} 
-        {% if messages %} 
-            {% for category, message in messages %} 
-                {% if category == 'error' %}
-                    <!-- bootstrap class for error message -->
-                    <div class="alert alert-danger alter-dismissable fade show" role="alert">
-                    <!-- actual message -->
-                    {{ message }}
-                    <!-- button to close message -->
-                    <button type="button" class="close" data-dismiss="alert">
-                        <!-- x character to close -->
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    </div>
-                {% else %}
-                    <!-- bootstrap class for success message -->
-                    <div class="alert alert-success alter-dismissable fade show" role="alert">
-                    <!-- actual message -->
-                    {{ message }}
-                    <!-- button to close message -->
-                    <button type="button" class="close" data-dismiss="alert">
-                        <!-- x character to close -->
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                    </div>
-                {% endif %} 
-            {% endfor %} 
-        {% endif %} 
-    {% endwith %}
-
+    <!-- div flash-messages element targeted by modal functions -->
+    <div id="flash-messages">
+        {% with messages = get_flashed_messages(with_categories=true) %} 
+            {% if messages %} 
+                {% for category, message in messages %} 
+                    {% if category == 'error' %}
+                        <!-- bootstrap class for error message -->
+                        <div class="alert alert-danger alter-dismissable fade show" role="alert">
+                        <!-- actual message -->
+                        {{ message }}
+                        <!-- button to close message -->
+                        <button type="button" class="close" data-dismiss="alert">
+                            <!-- x character to close -->
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                    {% else %}
+                        <!-- bootstrap class for success message -->
+                        <div class="alert alert-success alter-dismissable fade show" role="alert">
+                        <!-- actual message -->
+                        {{ message }}
+                        <!-- button to close message -->
+                        <button type="button" class="close" data-dismiss="alert">
+                            <!-- x character to close -->
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        </div>
+                    {% endif %} 
+                {% endfor %} 
+            {% endif %} 
+        {% endwith %}
+    </div>
 
 
     <!-- main content -->
@@ -180,7 +185,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="myModalLabel"></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="modalCloseButton"></button>
             </div>
             <div class="modal-body">
             </div>
@@ -196,4 +201,3 @@
     <script src="{{ url_for('static', filename='js/bootstrap/bootstrap.bundle.min.js') }}"></script>
   </body>
 </html>
-

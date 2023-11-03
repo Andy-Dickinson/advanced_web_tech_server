@@ -1,13 +1,15 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import UniqueConstraint
 from datetime import datetime
+from flask_login import UserMixin
+# from . import db
 
 db = SQLAlchemy()
 
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    username = db.Column(db.String(30), unique=True, nullable=False)
+    username = db.Column(db.String(25), unique=True, nullable=False)
     first_name = db.Column(db.String(100))
     surname = db.Column(db.String(100))
     handicap_index = db.Column(db.String(5))
@@ -106,3 +108,4 @@ class Event(db.Model):
     # string representation
     def __repr__(self):
         return f'<Event id:{self.event_id}, user_creator:{self.user_id_creator}, club:{self.club_id}, event_name:{self.event_name}, description:{self.event_description}, planned_datetime_stored:{self.planned_datetime}, planned_datetime_iso:({self.datetime_as_iso()}), max_capacity:{self.max_capacity}, min_hc:{self.min_hc}, max_hc:{self.max_hc}, current_participants:{self.current_participants}, tee_time_booked:{self.tee_time_booked}, event_open:{self.event_open})>'
+    
