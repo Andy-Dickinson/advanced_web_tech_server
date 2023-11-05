@@ -29,6 +29,7 @@ function openModal(modalType) {
         user_input.name = "username";
         user_input.placeholder = "Enter username";
         user_input.form = 'login';
+        // Validate client side
         user_input.addEventListener('input', function () {
             user_input.setCustomValidity(validateInput(user_input.value, 'username'));
         });
@@ -50,6 +51,7 @@ function openModal(modalType) {
         pw_input.name = "password";
         pw_input.placeholder = "Enter password";
         pw_input.form = 'login';
+        // Validate client side
         pw_input.addEventListener('input', function () {
             pw_input.setCustomValidity(validateInput(pw_input.value, 'password'));
         });
@@ -62,21 +64,23 @@ function openModal(modalType) {
         const form_btn = document.createElement('button');
         form_btn.className = "btn btn-primary";
         form_btn.type = "submit";
+        form_btn.form = "login";
         form_btn.textContent = "Log in";
         form.appendChild(form_btn);
 
-        // Event listener for sending data to server for validation
+        // Event listener for sending data to server
         form.addEventListener('submit', function (e) {
             e.preventDefault();  // prevents reloading of the page
             const formData = new FormData(form);
 
+            // Does not send if nothing entered
             if (formData.get('username').trim() === '') {
-                displayErrorMessage('Username required');
+                displayAlertMessage('Username required', true);
                 return;
             }
 
             if (formData.get('password').trim() === '') {
-                displayErrorMessage('Password required');
+                displayAlertMessage('Password required', true);
                 return;
             }
 
@@ -87,8 +91,14 @@ function openModal(modalType) {
             })
             .then(response => response.json())
             .then(data => {
+
                 if (!data.success) {
-                    displayErrorMessage(data.message);
+                    displayAlertMessage(data.message, true);
+                }
+
+                if(data.success) {
+                    // Redirect to home page after successfully logging in
+                    window.location.href = '/home';
                 }
             })
             .catch(error => console.error('Error submit function:', error));
@@ -99,10 +109,11 @@ function openModal(modalType) {
 
         // Link to switch to the sign-up modal
         const switchToSignupLink = document.createElement('a');
+        switchToSignupLink.className = "modal-link"
         switchToSignupLink.href = "javascript:void(0);";
         switchToSignupLink.textContent = "Don't have an account? Sign up here";
         switchToSignupLink.onclick = function () {
-            openModal('signup'); // Change the modal type to 'signup' when clicked
+            openModal('signup');
         };
 
         // Append the switch link to modal content
@@ -129,8 +140,9 @@ function openModal(modalType) {
         user_input.name = "username";
         user_input.placeholder = "Enter a username";
         user_input.form = 'signup';
+        // Validate client side
         user_input.addEventListener('input', function () {
-            user_input.setCustomValidity(validateInput(user_input.value, 'username'));
+            user_input.setCustomValidity(validateInput(user_input.value, 'username')); 
         });
         user_gp.appendChild(user_input);
         form.appendChild(user_gp);
@@ -150,8 +162,9 @@ function openModal(modalType) {
         fName_input.name = "first_name";
         fName_input.placeholder = "Enter your first name";
         fName_input.form = 'signup';
+        // Validate client side
         fName_input.addEventListener('input', function () {
-            fName_input.setCustomValidity(validateInput(fName_input.value, 'first_name'));
+            fName_input.setCustomValidity(validateInput(fName_input.value, 'first_name')); 
         });
         fName_gp.appendChild(fName_input);
         form.appendChild(fName_gp);
@@ -171,8 +184,9 @@ function openModal(modalType) {
         sName_input.name = "surname";
         sName_input.placeholder = "Enter your surname";
         sName_input.form = 'signup';
+        // Validate client side
         sName_input.addEventListener('input', function () {
-            sName_input.setCustomValidity(validateInput(sName_input.value, 'surname'));
+            sName_input.setCustomValidity(validateInput(sName_input.value, 'surname')); 
         });
         sName_gp.appendChild(sName_input);
         form.appendChild(sName_gp);
@@ -191,8 +205,9 @@ function openModal(modalType) {
         hc_input.name = "handicap";
         hc_input.placeholder = "Enter your handicap index e.g. +1.5, 15, 25.4";
         hc_input.form = 'signup';
+        // Validate client side
         hc_input.addEventListener('input', function () {
-            hc_input.setCustomValidity(validateInput(hc_input.value, 'handicap'));
+            hc_input.setCustomValidity(validateInput(hc_input.value, 'handicap')); 
         });
         hc_gp.appendChild(hc_input);
         form.appendChild(hc_gp);
@@ -212,8 +227,9 @@ function openModal(modalType) {
         email_input.name = "email";
         email_input.placeholder = "Enter your email";
         email_input.form = 'signup';
+        // Validate client side
         email_input.addEventListener('input', function () {
-            email_input.setCustomValidity(validateInput(email_input.value, 'email'));
+            email_input.setCustomValidity(validateInput(email_input.value, 'email'));  
         });
         email_gp.appendChild(email_input);
         form.appendChild(email_gp);
@@ -233,8 +249,9 @@ function openModal(modalType) {
         pw_input.name = "password";
         pw_input.placeholder = "Enter a password";
         pw_input.form = 'signup';
+        // Validate client side
         pw_input.addEventListener('input', function () {
-            pw_input.setCustomValidity(validateInput(pw_input.value, 'password'));
+            pw_input.setCustomValidity(validateInput(pw_input.value, 'password'));  
         });
         pw_gp.appendChild(pw_input);
         form.appendChild(pw_gp);
@@ -254,8 +271,9 @@ function openModal(modalType) {
         pw2_input.name = "password2";
         pw2_input.placeholder = "Confirm your password";
         pw2_input.form = 'signup';
+        // Validate client side
         pw2_input.addEventListener('input', function () {
-            pw2_input.setCustomValidity(validateInput([pw2_input.value, pw_input.value], 'password2'));
+            pw2_input.setCustomValidity(validateInput([pw2_input.value, pw_input.value], 'password2'));  
         });
         pw2_gp.appendChild(pw2_input);
         form.appendChild(pw2_gp);
@@ -266,31 +284,33 @@ function openModal(modalType) {
         const form_btn = document.createElement('button');
         form_btn.className = "btn btn-primary";
         form_btn.type = "submit";
+        form_btn.form = "signup";
         form_btn.textContent = "Sign up";
         form.appendChild(form_btn);
 
-        // Event listener for sending data to server for validation
+        // Event listener for sending data to server
         form.addEventListener('submit', function (e) {
             e.preventDefault();  // prevents reloading of the page
             const formData = new FormData(form);
 
-            if (formData.get('username').trim() === '') {
-                displayErrorMessage('Username required');
+            // Does not send if nothing entered
+            if (formData.get('username').trim() === '') {  
+                displayAlertMessage('Username required', true);
                 return;
             }
 
             if (formData.get('email').trim() === '') {
-                displayErrorMessage('Email required');
+                displayAlertMessage('Email required', true);
                 return;
             }
 
             if (formData.get('password').trim() === '') {
-                displayErrorMessage('Password required');
+                displayAlertMessage('Password required', true);
                 return;
             }
 
             if (formData.get('password2').trim() === '') {
-                displayErrorMessage('Confirm password');
+                displayAlertMessage('Confirm password', true);
                 return;
             }
 
@@ -301,8 +321,14 @@ function openModal(modalType) {
             })
             .then(response => response.json())
             .then(data => {
+                
                 if (!data.success) {
-                    displayErrorMessage(data.message);
+                    displayAlertMessage(data.message, true);
+                } 
+
+                if(data.success) {
+                    // Redirect to home page after successfully signing up
+                    window.location.href = '/home';
                 }
             })
             .catch(error => console.error('Error submit function:', error));
@@ -313,10 +339,11 @@ function openModal(modalType) {
 
         // Link to switch to the log-in modal
         const switchToLoginLink = document.createElement('a');
+        switchToLoginLink.className = "modal-link";
         switchToLoginLink.href = "javascript:void(0);";
         switchToLoginLink.textContent = "Already have an account? Log in here";
         switchToLoginLink.onclick = function () {
-            openModal('login'); // Change the modal type to 'signup' when clicked
+            openModal('login'); 
         };
 
         // Append the switch link to modal content

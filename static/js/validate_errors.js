@@ -1,23 +1,45 @@
-function displayErrorMessage(message) {
+function displayAlertMessage(message, error) {
     const errorContainer = document.getElementById("flash-messages");
+    let alert_type;
+
+    if (error === true) {
+        alert_type = "alert-danger";
+    }else {
+        alert_type = "alert-success";
+    }
 
     // Create a new error alert
     const errorAlert = document.createElement('div');
-    errorAlert.className = "alert alert-danger alert-dismissible fade show modal-error-message";
+    errorAlert.className = "alert " + alert_type + " alert-dismissible fade show modal-error-message fixed-top";
     errorAlert.textContent = message;
     errorAlert.setAttribute('role', 'alert');
 
     // Append error alert
     errorContainer.appendChild(errorAlert);
 
-    // Timeout to remove error message
-    setTimeout(() => {
-        errorAlert.style.opacity = 0; // Trigger the fade-out transition
-        setTimeout(() => {
-            errorAlert.remove(); 
-        }, 500); // should match the transition duration
-    }, 2000);
+    // Alert messages fade after 2 sec delay
+    removeMessageAfterTimeout(errorAlert, 2000);
 }
+
+
+// Timeout param sets delay until starts to fade
+function removeMessageAfterTimeout(messageElement, timeout) {
+    setTimeout(() => {
+        messageElement.style.opacity = 0; // Trigger the fade-out transition
+        setTimeout(() => {
+            messageElement.remove();
+        }, 500); // Transition fade duration in css should match this delay for removal
+    }, timeout);
+}
+
+
+// Find and remove flash messages with alert class, delay to fade 1 sec
+document.addEventListener("DOMContentLoaded", function () {
+    var flashMessages = document.querySelectorAll(".alert");
+    flashMessages.forEach(function (flashMessage) {
+        removeMessageAfterTimeout(flashMessage, 1000);
+    });
+});
 
 
 function validateInput(formData, field) {

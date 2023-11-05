@@ -1,11 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-</head>
-<body>
-    <h1>TEST</h1>
-</body>
-</html>
+{% extends "base.html" %} 
+
+{% block modal_script %}
+    <script src="{{ url_for('static', filename='js/authenticated_modals.js') }}"></script>  
+{% endblock %}
+
+{% block nav_items %}
+    <li class="nav-item ">
+        <!-- need link for game chats ---------------------------------------------------------------------------------------------------------- -->
+        <a class="nav-link" href="#my_game_chats">My game chats</a>
+    </li>
+    <li class="nav-item">
+        <!-- need link for find games ----------------------------------------------------------------------------------------------------------- -->
+        <a class="nav-link" href="#find_games">Find games</a>
+    </li> 
+    <li class="nav-item"><a class="nav-link" href="#contact" onclick="document.querySelector('.navbar-toggler').click();">Contact</a></li>
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Account</a>
+        <ul class="dropdown-menu">
+        <li><a class="dropdown-item" onclick="openModal('subs')">Manage subscriptions</a></li>
+        <li><a class="dropdown-item" onclick="openModal('hc')">Update handicap</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="logout">Sign out</a></li>
+        </ul>
+    </li>
+{% endblock %}
+
+
+{% block content %} 
+    <header class="mainheader">
+        <div class="header-content">
+            <h1>Tee Time Hub</h1>
+            <h2>Empowering Your Play:<br/>The Ultimate Event Coordinator!</h2>
+        </div>
+        <div class="header-button">
+            <a class="btn btn-primary" onclick="openModal('login')">Get Started</a>
+        </div>
+    </header>
+{% endblock %}

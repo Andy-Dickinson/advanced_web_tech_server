@@ -2,7 +2,6 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import UniqueConstraint
 from datetime import datetime
 from flask_login import UserMixin
-# from . import db
 
 db = SQLAlchemy()
 
@@ -14,7 +13,7 @@ class User(db.Model, UserMixin):
     surname = db.Column(db.String(100))
     handicap_index = db.Column(db.String(5))
     email = db.Column(db.String(255), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
+    password = db.Column(db.String(60), nullable=False)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     subscriptions = db.relationship('User_subscription', backref='user')
@@ -22,10 +21,13 @@ class User(db.Model, UserMixin):
     events = db.relationship('Event', backref='user')
     messages = db.relationship('Message', backref='user')
 
+    # function used by flask login
+    def get_id(self):
+        return str(self.user_id)
     
     # string representation
     def __repr__(self):
-        return f'<User id:{self.username}, first:{self.first_name}, surname:{self.surname}, handicap:{self.handicap_index}, email:{self.email}, password:{self.password}, admin:{self.is_admin}, subscriptions_relationship:{self.subscriptions}, chats_relationship:{self.chats}, events_relationship:{self.events}, messages_relationship:{self.messages}>'
+        return f'<User id:{self.user_id}, username:{self.username} first:{self.first_name}, surname:{self.surname}, handicap:{self.handicap_index}, email:{self.email}, password:{self.password}, admin:{self.is_admin}, subscriptions_relationship:{self.subscriptions}, chats_relationship:{self.chats}, events_relationship:{self.events}, messages_relationship:{self.messages}>'
     
 
 class User_subscription(db.Model):
@@ -107,5 +109,5 @@ class Event(db.Model):
     
     # string representation
     def __repr__(self):
-        return f'<Event id:{self.event_id}, user_creator:{self.user_id_creator}, club:{self.club_id}, event_name:{self.event_name}, description:{self.event_description}, planned_datetime_stored:{self.planned_datetime}, planned_datetime_iso:({self.datetime_as_iso()}), max_capacity:{self.max_capacity}, min_hc:{self.min_hc}, max_hc:{self.max_hc}, current_participants:{self.current_participants}, tee_time_booked:{self.tee_time_booked}, event_open:{self.event_open})>'
+        return f'<Event id:{self.event_id}, user_creator_id:{self.user_id_creator}, club_id:{self.club_id}, event_name:{self.event_name}, description:{self.event_description}, planned_datetime_stored:{self.planned_datetime}, planned_datetime_iso:({self.datetime_as_iso()}), max_capacity:{self.max_capacity}, min_hc:{self.min_hc}, max_hc:{self.max_hc}, current_participants:{self.current_participants}, tee_time_booked:{self.tee_time_booked}, event_open:{self.event_open})>'
     
