@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify, session
 from flask_login import login_required, current_user, LoginManager, login_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
+from sqlalchemy import and_
 from os import path
 from models import db, User, User_subscription, Club, Chat, Message, Event
 import bcrypt
+from datetime import date
 import re
 
 
@@ -64,9 +65,10 @@ def load_user(user_id):
 def base():
     
     if current_user.is_authenticated:
-        return redirect(url_for('home')), 302
+        return redirect(url_for('home'))
 
-    return render_template('base.html'), 200
+    home_link_url = '#page-top'
+    return render_template('base.html', home_link_url=home_link_url), 200
 
 
 # logged in home page
@@ -81,7 +83,7 @@ def home():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('base')), 200
+    return redirect(url_for('base'))
 
 
 # login route from modal form
@@ -102,7 +104,7 @@ def login():
             login_user(user, remember=True)
 
             flash('Logged in!', category='success')
-
+            
             # If validation is successful, redirect to the home page
             return jsonify({"success": True}), 200
         else:
@@ -194,6 +196,22 @@ def signup():
     return jsonify({"success": True}), 201
 
 
+# Find games route
+@app.route('/find_game', methods=['GET', 'POST'])
+@login_required
+def find_game():
+    home_link_url = '/home'
+    current_date = date.today()
+    
+    if request.method == 'GET':
+        return render_template('find_game.html', home_link_url=home_link_url, current_date=current_date), 200
+    
+    if request.method == 'POST':
+        return None, 201
+    
+    return None, 405
+
+
 # update handicap
 @app.route('/update_hc', methods=['GET', 'POST'])
 @login_required
@@ -225,6 +243,7 @@ def update_hc():
     return None, 405
 
 
+# Returns list of all approved clubs in database
 @app.route('/all_approved_clubs')
 @login_required
 def all_approved_clubs():
@@ -249,6 +268,7 @@ def all_approved_clubs():
     return jsonify(clubs_data), 200
 
 
+# Gets users current subscriptions or subscribes user as per clubs sent
 @app.route('/user_subs', methods=['GET', 'POST'])
 @login_required
 def user_subs():
@@ -307,13 +327,39 @@ def user_subs():
     return None, 405
 
 
+# Returns list of all open events in database
+@app.route('/open_events')
+@login_required
+def open_events():
+    # Get open events which are not at full capacity
+    events = Event.query.filter(Event.event_open == True, and_(Event.current_participants < Event.max_capacity)).all()
+    
+    # Convert event objects to dictionaries
+    events_data = []
+    for event in events:
+        event_dict = {
+            "id": event.event_id,
+            "creator": event.user_id_creator,
+            "club_id": event.club_id,
+            "event_name": event.event_name,
+            "description": event.event_description,
+            "planned_date": event.datetime_as_iso(),
+            "max_capacity": event.max_capacity,
+            "min_hc": event.min_hc,
+            "max_hc": event.max_hc,
+            "current_participants": event.current_participants,
+            "tee_time_booked": event.tee_time_booked, 
+        }
+        events_data.append(event_dict)
+    
+    return jsonify(events_data), 200
 
 
 # Test routes ----------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/clear_session', methods=['GET'])
 def clear_session():
     session.clear()
-    return redirect(url_for('base')), 200
+    return redirect(url_for('base'))
 
 @app.route('/clear_request_data')
 def clear_request_data():
@@ -343,30 +389,7 @@ def add_clubs():
     db.session.add(club)
     db.session.commit()
 
-
-    club = Club.query.filter_by(club_name="Duddingston").first()
-
-    user_subscription = User_subscription(user=current_user, club=club)
-
-    # Add the User_subscription object to the database session
-    db.session.add(user_subscription)
-
-    # Commit the changes to the database
-    db.session.commit()
-
-
-    # # user = current_user
-    # club2 = Club.query.filter_by(club_name="Pumpherston").first()
-
-    # user_subscription2 = User_subscription(user=current_user, club=club2)
-
-    # # Add the User_subscription object to the database session
-    # db.session.add(user_subscription2)
-
-    # # Commit the changes to the database
-    # db.session.commit()
-
-    return redirect(url_for('base')), 302
+    return redirect(url_for('base'))
 
 
 
@@ -427,7 +450,7 @@ def validate_input(formData, field):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=8080)
+    app.run(host='0.0.0.0', debug=True, port=5000)
 
 
 

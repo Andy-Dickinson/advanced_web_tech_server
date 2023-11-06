@@ -91,7 +91,7 @@ function openModal(modalType) {
             })
             .then(response => response.json())
             .then(data => {
-
+                
                 if (!data.success) {
                     displayAlertMessage(data.message, true);
                 }
@@ -109,7 +109,7 @@ function openModal(modalType) {
 
         // Link to switch to the sign-up modal
         const switchToSignupLink = document.createElement('a');
-        switchToSignupLink.className = "modal-link"
+        switchToSignupLink.className = "link"
         switchToSignupLink.href = "javascript:void(0);";
         switchToSignupLink.textContent = "Don't have an account? Sign up here";
         switchToSignupLink.onclick = function () {
@@ -339,7 +339,7 @@ function openModal(modalType) {
 
         // Link to switch to the log-in modal
         const switchToLoginLink = document.createElement('a');
-        switchToLoginLink.className = "modal-link";
+        switchToLoginLink.className = "link";
         switchToLoginLink.href = "javascript:void(0);";
         switchToLoginLink.textContent = "Already have an account? Log in here";
         switchToLoginLink.onclick = function () {

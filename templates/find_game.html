@@ -1,0 +1,72 @@
+{% extends "home.html" %} 
+
+<!-- maintains scripts defined in home.html -->
+{% block modal_script %}
+    {{ super() }}
+    <script src="{{ url_for('static', filename='js/authenticated_js/find_game_functions.js') }}"></script>
+{% endblock %}
+
+
+{% block content %} 
+    <header class="header text-center">
+            <h1 class="display-6">Find a game</h1>
+    </header>
+
+    <section class="find-game content">
+        <div class="row">
+            <div class="col-12 col-sm-4 p-0 find-game-options">
+                <div class="text-center">
+                    <a href="#create_a_game">
+                    <button class="btn btn-primary col-10 mx-auto col-sm-8 p-2">Create a game</button>
+                    </a>
+                </div>
+                <div class="col-10 col-sm-8 mx-auto my-2 text-center">
+                    <a href="#add_club" class="link">Club not listed? Click here to add</a>
+                </div>
+                <div class="col-8 mx-auto text-center">
+                    <form>
+                        <div class="form-group">
+                            <label for="dropdown" class="bold-input-label">Display open games for:</label>
+                            <select class="form-control" id="dropdown">
+                                <option value="subscribed" selected>Subscribed clubs</option>
+                                <option value="all">All clubs</option>
+                                <!-- More options added for each club when page loads -->
+                            </select>
+                            <br />
+                            <div class="form-group" id="date-picker-container">
+                                <p for="date-selection" class="bold-input-label my-0">Select Date Range:</p>
+                                <div class="form-group">
+                                    <label for="start-date">Start Date:</label>
+                                    <input type="date" class="form-control" id="start-date" value="{{ current_date }}" min="{{ current_date }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="end-date">End Date:</label>
+                                    <input type="date" class="form-control" id="end-date" min="{{ current_date }}">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-8 p-0 find-game-games">
+                <div>
+                    <h5 class="text-center">Availiable games:</h5>
+                    <hr>
+                </div>
+                <div>
+                    <a class="col-7 mx-5 col-sm-5 mx-sm-2 link" href="#">Link 1</a>
+                    <hr>
+                </div>
+                <div>
+                    <a  class="col-7 mx-5 col-sm-10 mx-sm-2" href="#">Link 2</a>
+                    <hr>
+                </div>
+                <div>
+                    <a  class="col-7 mx-5 col-sm-10 mx-sm-2" href="#">Link 3</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <br />
+{% endblock %}

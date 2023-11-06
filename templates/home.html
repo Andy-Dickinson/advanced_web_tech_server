@@ -1,26 +1,26 @@
 {% extends "base.html" %} 
 
 {% block modal_script %}
-    <script src="{{ url_for('static', filename='js/authenticated_modals.js') }}"></script>  
+    <script src="{{ url_for('static', filename='js/authenticated_js/modals.js') }}"></script>  
+    <script src="{{ url_for('static', filename='js/authenticated_js/fetch_functions.js') }}"></script>
 {% endblock %}
 
 {% block nav_items %}
     <li class="nav-item ">
-        <!-- need link for game chats ---------------------------------------------------------------------------------------------------------- -->
         <a class="nav-link" href="#my_game_chats">My game chats</a>
     </li>
     <li class="nav-item">
-        <!-- need link for find games ----------------------------------------------------------------------------------------------------------- -->
-        <a class="nav-link" href="#find_games">Find games</a>
+        <!-- need link for find game ----------------------------------------------------------------------------------------------------------- -->
+        <a class="nav-link" href="{{ url_for('find_game') }}">Find a game</a>
     </li> 
-    <li class="nav-item"><a class="nav-link" href="#contact" onclick="document.querySelector('.navbar-toggler').click();">Contact</a></li>
+    <li class="nav-item"><a class="nav-link" href="#contact" onclick="toggleNavbarCollapse()">Contact</a></li>
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Account</a>
         <ul class="dropdown-menu">
         <li><a class="dropdown-item" onclick="openModal('subs')">Manage subscriptions</a></li>
         <li><a class="dropdown-item" onclick="openModal('hc')">Update handicap</a></li>
         <li><hr class="dropdown-divider"></li>
-        <li><a class="dropdown-item" href="logout">Sign out</a></li>
+        <li><a class="dropdown-item" href="{{ url_for('logout') }}">Sign out</a></li>
         </ul>
     </li>
 {% endblock %}

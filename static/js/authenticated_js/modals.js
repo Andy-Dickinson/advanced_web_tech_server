@@ -108,7 +108,7 @@ function openModal(modalType) {
 
       // Link to add club
       const switchToLoginLink = document.createElement("a");
-      switchToLoginLink.className = "modal-link";
+      switchToLoginLink.className = "link";
       switchToLoginLink.href = "#add_club";
       switchToLoginLink.textContent = "Club not listed? Click here to add";
       modalContent.appendChild(switchToLoginLink);
@@ -125,7 +125,7 @@ function openModal(modalType) {
       const row = document.createElement("div");
       row.className = "row d-flex align-items-center select-all";
 
-      if (approved_clubs && approved_clubs.length > 0) {
+      if (approved_clubs.length > 0) {
         // Select all only added if multiple clubs
         if (approved_clubs.length > 1) {
             const isSubscribedToAll = user_subs.length === approved_clubs.length;
@@ -133,7 +133,7 @@ function openModal(modalType) {
             // Select All label
             const selectAllLabel = document.createElement("div");
             selectAllLabel.className = "col-8 toggle-label";
-            selectAllLabel.textContent = "Select all:";
+            selectAllLabel.textContent = "Select all";
             row.appendChild(selectAllLabel);
 
             // Select All actual switch
@@ -172,7 +172,7 @@ function openModal(modalType) {
             // Club label
             const clubLabel = document.createElement("div");
             clubLabel.className = "col-8 toggle-label";
-            clubLabel.textContent = club.name + ":";
+            clubLabel.textContent = club.name + " - " + club.postcode;
             clubRow.appendChild(clubLabel);
 
             // Club switch
@@ -215,26 +215,24 @@ function openModal(modalType) {
 
       form.appendChild(scrollContainer);
 
-      form.appendChild(document.createElement("br"));
-
       // Create "Save" and "Cancel" buttons
       const buttonGp = document.createElement("div");
       buttonGp.className = "modal-buttons row justify-content-center";
 
       const saveButton = document.createElement("button");
-      saveButton.className = "btn col-3 mx-2 btn-primary";
+      saveButton.className = "btn col-sm-3 mx-2 my-1 btn-primary";
       saveButton.type = "submit";
       saveButton.form = "subs";
       saveButton.textContent = "Save";
       buttonGp.appendChild(saveButton);
 
       const cancelButton = document.createElement("button");
-      cancelButton.className = "btn col-3 mx-2 btn-primary";
+      cancelButton.className = "btn col-sm-3 mx-2 my-1 btn-primary";
       cancelButton.type = "button";
       cancelButton.textContent = "Cancel";
       cancelButton.addEventListener("click", function () {
         $("#myModal").modal("hide");
-        document.querySelector('.navbar-toggler').click();
+        toggleNavbarCollapse();
       });
       buttonGp.appendChild(cancelButton);
 
@@ -268,7 +266,7 @@ function openModal(modalType) {
             if (data.success) {
                 displayAlertMessage(data.message, false);
                 $("#myModal").modal("hide");
-                document.querySelector('.navbar-toggler').click();
+                toggleNavbarCollapse();
             } else {
                 displayAlertMessage(data.message, true);
             }
@@ -294,26 +292,4 @@ function openModal(modalType) {
   $(modal).modal("show");
 }
 
-// Returns list of dictionaries for all clubs in database (one dict for each club), if none exist returns empty list
-async function fetchApprovedClubData() {
-  const response = await fetch("/all_approved_clubs", {
-    method: 'GET'
-  });
-  if (!response.ok) {
-    throw new Error("Failed to retrieve club names");
-  }
-  const clubs = await response.json();
-  return clubs;
-}
 
-// Returns list of dictionaries for current users subscriptions (one dict for each), if none exist returns empty list
-async function fetchClubSubscriptions() {
-  const response = await fetch("/user_subs", {
-    method: 'GET'
-  });
-  if (!response.ok) {
-    throw new Error("Failed to retrieve user subscriptions");
-  }
-  const subs = await response.json();
-  return subs;
-}
