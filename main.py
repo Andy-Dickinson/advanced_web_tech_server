@@ -5,7 +5,7 @@ from sqlalchemy import and_
 from os import path
 from models import db, User, User_subscription, Club, Chat, Message, Event
 import bcrypt
-from datetime import date
+from datetime import datetime
 import re
 
 
@@ -116,84 +116,90 @@ def login():
 # signup route from modal form
 @app.route('/signup', methods=['POST'])
 def signup():
+    try:
+        # Get form data
+        username = request.form.get('username').strip()
+        first_name = request.form.get('first_name')
+        surname = request.form.get('surname')
+        hc = request.form.get('handicap')
+        email = request.form.get('email').strip()
+        password = request.form.get('password').strip()
+        password2 = request.form.get('password2').strip()
 
-    # Get form data
-    username = request.form.get('username').strip()
-    first_name = request.form.get('first_name')
-    surname = request.form.get('surname')
-    hc = request.form.get('handicap')
-    email = request.form.get('email').strip()
-    password = request.form.get('password').strip()
-    password2 = request.form.get('password2').strip()
-
-    # Validate the input data
-    if username:  
-        validated = validate_input(username, 'username')
-        if (validated != ''):
-            return jsonify({"success": False, "message": validated}), 400
-    else:
-        return jsonify({"success": False, "message": "Username required"}), 400
-    
-    if first_name:
-        validated = validate_input(first_name, 'first_name')
-        if (validated != ''):
-            return jsonify({"success": False, "message": validated}), 400
+        # Validate the input data
+        if username:  
+            validated = validate_input(username, 'username')
+            if (validated != ''):
+                return jsonify({"success": False, "message": validated}), 400
+        else:
+            return jsonify({"success": False, "message": "Username required"}), 400
         
-    if surname:
-        validated = validate_input(surname, 'surname')
-        if (validated != ''):
-            return jsonify({"success": False, "message": validated}), 400
+        if first_name:
+            validated = validate_input(first_name, 'first_name')
+            if (validated != ''):
+                return jsonify({"success": False, "message": validated}), 400
+            
+        if surname:
+            validated = validate_input(surname, 'surname')
+            if (validated != ''):
+                return jsonify({"success": False, "message": validated}), 400
+            
+        if hc:
+            validated = validate_input(hc, 'handicap')
+            if (validated != ''):
+                return jsonify({"success": False, "message": validated}), 400
+            
+        if email:
+            validated = validate_input(email, 'email')
+            if (validated != ''):
+                return jsonify({"success": False, "message": validated}), 400
+        else:
+            return jsonify({"success": False, "message": "Email required"}), 400
+            
+        if password:
+            validated = validate_input(password, 'password')
+            if (validated != ''):
+                return jsonify({"success": False, "message": validated}), 400
+        else:
+            return jsonify({"success": False, "message": "Password required"}), 400
         
-    if hc:
-        validated = validate_input(hc, 'handicap')
-        if (validated != ''):
-            return jsonify({"success": False, "message": validated}), 400
+        if password2:
+            validated = validate_input([password, password2], 'password2')
+            if (validated != ''):
+                return jsonify({"success": False, "message": validated}), 400
+        else:
+            return jsonify({"success": False, "message": "Confirm password"}), 400
         
-    if email:
-        validated = validate_input(email, 'email')
-        if (validated != ''):
-            return jsonify({"success": False, "message": validated}), 400
-    else:
-        return jsonify({"success": False, "message": "Email required"}), 400
+
+        # Validate against database
+        db_user = User.query.filter_by(username=username).first()
+        if db_user:
+            return jsonify({"success": False, "message": "Username already exists"}), 409
         
-    if password:
-        validated = validate_input(password, 'password')
-        if (validated != ''):
-            return jsonify({"success": False, "message": validated}), 400
-    else:
-        return jsonify({"success": False, "message": "Password required"}), 400
-    
-    if password2:
-        validated = validate_input([password, password2], 'password2')
-        if (validated != ''):
-            return jsonify({"success": False, "message": validated}), 400
-    else:
-        return jsonify({"success": False, "message": "Confirm password"}), 400
-    
+        db_email = User.query.filter_by(email=email).first()
+        if db_email:
+            return jsonify({"success": False, "message": "Email already associated with an account"}), 409
 
-    # Validate against database
-    db_user = User.query.filter_by(username=username).first()
-    if db_user:
-        return jsonify({"success": False, "message": "Username already exists"}), 409
-    
-    db_email = User.query.filter_by(email=email).first()
-    if db_email:
-        return jsonify({"success": False, "message": "Email already associated with an account"}), 409
+        
+        # Signup user and login
+        hash_salt_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        new_user = User(username=username, first_name=first_name, surname=surname, handicap_index=hc, email=email, password=hash_salt_pw)
 
-    
-    # Signup user and login
-    hash_salt_pw = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
-    new_user = User(username=username, first_name=first_name, surname=surname, handicap_index=hc, email=email, password=hash_salt_pw)
+        db.session.add(new_user)
+        db.session.commit()
+        
+        login_user(new_user, remember=True)
+        
+        flash('Account created!', category='success')
+        
+        # If validation is successful, redirect to the home page
+        return jsonify({"success": True}), 201
+    except Exception as e:
+        db.session.rollback()
 
-    db.session.add(new_user)
-    db.session.commit()
-    
-    login_user(new_user, remember=True)
-    
-    flash('Account created!', category='success')
-    
-    # If validation is successful, redirect to the home page
-    return jsonify({"success": True}), 201
+        print("Signup failed, rolled back, error: " + str(e))
+
+        return jsonify({"success": False, "message": "Something went wrong, signup failed, please try again later."}), 500
 
 
 # Find games route
@@ -201,10 +207,10 @@ def signup():
 @login_required
 def find_game():
     home_link_url = '/home'
-    current_date = date.today()
+    current_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M")
     
     if request.method == 'GET':
-        return render_template('find_game.html', home_link_url=home_link_url, current_date=current_date), 200
+        return render_template('find_game.html', home_link_url=home_link_url, current_datetime=current_datetime), 200
     
     if request.method == 'POST':
         return None, 201
@@ -217,30 +223,39 @@ def find_game():
 @login_required
 def update_hc():
 
-    if request.method == 'GET':
-        current_hc = current_user.handicap_index
-        if current_hc:
-            return jsonify({"success":True, "hc":current_hc}), 200
-        else:
-            return jsonify({"success":False, "hc":"None currently set"}), 200
+    try:
+        if request.method == 'GET':
+            current_hc = current_user.handicap_index
+            if current_hc:
+                return jsonify({"success":True, "hc":current_hc}), 200
+            else:
+                return jsonify({"success":False, "hc":"None currently set"}), 200
+        
+        if request.method == 'POST':
+            new_hc = request.form.get('handicap')
+
+            if new_hc:
+                validated = validate_input(new_hc, 'handicap')
+                if (validated != ''):
+                    return jsonify({"success": False, "message": validated}), 400
+            else:
+                return jsonify({"success": False, "message": "Please enter a handicap index"}), 400
+            
+            # adds new handicap index to database if validated ok
+            current_user.handicap_index = new_hc
+            db.session.commit()
+
+            return jsonify({"success": True, "hc": new_hc}), 201
+            
+        return None, 405
     
-    if request.method == 'POST':
-        new_hc = request.form.get('handicap')
+    except Exception as e:
+        db.sessionn.rollback()
 
-        if new_hc:
-            validated = validate_input(new_hc, 'handicap')
-            if (validated != ''):
-                return jsonify({"success": False, "message": validated}), 400
-        else:
-            return jsonify({"success": False, "message": "Please enter a handicap index"}), 400
-        
-        # adds new handicap index to database if validated ok
-        current_user.handicap_index = new_hc
-        db.session.commit()
+        print("Updating of handicap failed, rolled back, error: " + str(e))
 
-        return jsonify({"success": True, "hc": new_hc}), 201
+        return jsonify({"success": False, "message": "Something went wrong, updating of handicap failed, please try again later."}), 500
         
-    return None, 405
 
 
 # Returns list of all approved clubs in database
@@ -272,66 +287,75 @@ def all_approved_clubs():
 @app.route('/user_subs', methods=['GET', 'POST'])
 @login_required
 def user_subs():
-    if request.method == 'GET':
-        user_subs = current_user.subscriptions
+    try:
+        if request.method == 'GET':
+            user_subs = current_user.subscriptions
 
-        # Convert subscription objects to dictionaries
-        user_subs_data = []
-        for sub in user_subs:
-            sub_dict = {
-                "subscription_id": sub.subscription_id,
-                "user_id": sub.user_id,
-                "club_id": sub.club_id,
-            }
-            user_subs_data.append(sub_dict)
+            # Convert subscription objects to dictionaries
+            user_subs_data = []
+            for sub in user_subs:
+                sub_dict = {
+                    "subscription_id": sub.subscription_id,
+                    "user_id": sub.user_id,
+                    "club_id": sub.club_id,
+                }
+                user_subs_data.append(sub_dict)
 
-        return jsonify(user_subs_data), 200
+            return jsonify(user_subs_data), 200
+        
+        elif request.method == 'POST':
+            subed_list = request.get_json()['selectedClubs']
+            
+            # Get list of all approved clubs
+            approved_clubs = Club.query.filter_by(approved=True).all()
+
+            # Dictionary to map club names to IDs
+            club_name_to_id = {club.club_name: club.club_id for club in approved_clubs}
+            
+            # Checks if any clubs in subed_list are not in approved list
+            for club_name in subed_list:
+                if club_name not in club_name_to_id:
+                    return jsonify({"success": False, "message": f"Club '{club_name}' is not an approved club"}), 400
+            
+            # Current user's subscriptions club ids list
+            current_user_subs = [sub.club_id for sub in current_user.subscriptions]
+
+            # Subscribe user to clubs they are not already subscribed to
+            clubs_to_subscribe = [club_name_to_id[club_name] for club_name in subed_list if club_name_to_id[club_name] not in current_user_subs]
+            for club_id in clubs_to_subscribe:
+                club = Club.query.get(club_id)
+                if club:
+                    user_subscription = User_subscription(user_id=current_user.user_id, club_id=club.club_id)
+                    db.session.add(user_subscription)
+            
+            # Unsubscribe user from clubs not in subed_list which currently subscribed to
+            clubs_to_unsubscribe = [club_id for club_id in current_user_subs if club_id not in [club_name_to_id[name] for name in subed_list]]
+            
+            for club_id in clubs_to_unsubscribe:
+                user_subscription = User_subscription.query.filter_by(user_id=current_user.user_id, club_id=club_id).first()
+                if user_subscription:
+                    db.session.delete(user_subscription)
+            
+            db.session.commit()
+            
+            return jsonify({"success": True, "message": "Subscriptions updated successfully"}), 200
+        
+        return None, 405
     
-    elif request.method == 'POST':
-        subed_list = request.get_json()['selectedClubs']
-        
-        # Get list of all approved clubs
-        approved_clubs = Club.query.filter_by(approved=True).all()
+    except Exception as e:
+        db.sessionn.rollback()
 
-        # Dictionary to map club names to IDs
-        club_name_to_id = {club.club_name: club.club_id for club in approved_clubs}
-        
-        # Checks if any clubs in subed_list are not in approved list
-        for club_name in subed_list:
-            if club_name not in club_name_to_id:
-                return jsonify({"success": False, "message": f"Club '{club_name}' is not an approved club"}), 400
-        
-        # Current user's subscriptions club ids list
-        current_user_subs = [sub.club_id for sub in current_user.subscriptions]
+        print("Updating subscriptions failed, rolled back, error: " + str(e))
 
-        # Subscribe user to clubs they are not already subscribed to
-        clubs_to_subscribe = [club_name_to_id[club_name] for club_name in subed_list if club_name_to_id[club_name] not in current_user_subs]
-        for club_id in clubs_to_subscribe:
-            club = Club.query.get(club_id)
-            if club:
-                user_subscription = User_subscription(user=current_user, club=club)
-                db.session.add(user_subscription)
-        
-        # Unsubscribe user from clubs not in subed_list which currently subscribed to
-        clubs_to_unsubscribe = [club_id for club_id in current_user_subs if club_id not in [club_name_to_id[name] for name in subed_list]]
-        
-        for club_id in clubs_to_unsubscribe:
-            user_subscription = User_subscription.query.filter_by(user_id=current_user.user_id, club_id=club_id).first()
-            if user_subscription:
-                db.session.delete(user_subscription)
-        
-        db.session.commit()
-        
-        return jsonify({"success": True, "message": "Subscriptions updated successfully"}), 200
-    
-    return None, 405
+        return jsonify({"success": False, "message": "Something went wrong, updating subscriptions failed, please try again later."}), 500
 
 
 # Returns list of all open events in database
 @app.route('/open_events')
 @login_required
 def open_events():
-    # Get open events which are not at full capacity
+
+    # Get open events which are not at max capacity
     events = Event.query.filter(Event.event_open == True, and_(Event.current_participants < Event.max_capacity)).all()
     
     # Convert event objects to dictionaries
@@ -355,10 +379,13 @@ def open_events():
     return jsonify(events_data), 200
 
 
-# Test routes ----------------------------------------------------------------------------------------------------------------------------------------
+# Testing routes ----------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/clear_session', methods=['GET'])
 def clear_session():
     session.clear()
+
+    flash("Session cleared!", category="success")
+
     return redirect(url_for('base'))
 
 @app.route('/clear_request_data')
@@ -369,27 +396,148 @@ def clear_request_data():
     request.headers = {}  
     request.data = b'' 
 
-    return "Request data cleared.", 200
-
-
-@app.route('/add_clubs')
-def add_clubs():
-    db.session.query(Club).delete()
-    db.session.commit()
-    db.session.query(User_subscription).delete()
-    db.session.commit()
-
-    club = Club(club_name="Pumpherston", club_url="https://www.pumpherstongolfclub.co.uk/", club_address="Drumshoreland Road, Pumpherston", club_postcode="EH53 0LQ", club_phone_number="01506 433337", approved=True)
-
-    db.session.add(club)
-    db.session.commit()
-
-    club = Club(club_name="Duddingston", club_url="https://www.duddingstongolfclub.co.uk/", club_address="Duddingston Golf Club, Duddingston Road West, Edinburgh", club_postcode="EH15 3QD", club_phone_number="0131 661 4301", approved=True)
-
-    db.session.add(club)
-    db.session.commit()
+    flash("Request data cleared!", category="success")
 
     return redirect(url_for('base'))
+
+
+@app.route('/add_events')
+def add_events():
+    try:
+        event1 = Event(
+            user_id_creator=current_user.id,
+            club_id=1,
+            event_name="Putt around",
+            event_description="Layed back 18 holes",
+            planned_datetime="2023-12-15 12:00:00", 
+            max_capacity=4,
+            current_participants=1,
+            tee_time_booked=False,
+            event_open=True,
+        )
+
+        event2 = Event(
+            user_id_creator=current_user.id,
+            club_id=2,
+            event_name="9 hole friendly",
+            event_description="Looking to get a few holes played with someone from club",
+            planned_datetime="2023-02-20 14:00:00", 
+            max_capacity=2,
+            min_hc="8.0",
+            max_hc="20.0",
+            current_participants=1,
+            tee_time_booked=False,
+            event_open=True,
+        )
+
+        chat1 = Chat(user_id=current_user.user_id, event=event1.event_id)
+        chat2 = Chat(user_id=current_user.user_id, event=event2.event_id)
+
+        db.session.add(event1)
+        db.session.add(event2)
+        db.session.add(chat1)
+        db.session.add(chat2)
+
+        db.session.commit()
+
+        flash('Events added!', category='success')
+
+        return redirect(url_for('base'))
+
+    except Exception as e:
+        db.session.rollback()
+
+        flash('Events not added, rolled back. error: ' + str(e), category='error')
+
+        return redirect(url_for('base'))
+
+
+@app.route('/add_one_club')
+def add_one_club():
+    try:
+        clubs = Club.query.all()
+            
+        for club in clubs:
+            User_subscription.query.filter_by(club_id=club.club_id).delete()
+            Event.query.filter_by(club_id=club.club_id).delete()
+        
+        
+        Club.query.delete()
+
+        club = Club(club_name="Pumpherston", club_url="https://www.pumpherstongolfclub.co.uk/", club_address="Drumshoreland Road, Pumpherston", club_postcode="EH53 0LQ", club_phone_number="01506 433337", approved=True)
+        db.session.add(club)
+
+        db.session.commit()
+
+        flash('Club added!', category='success')
+
+        return redirect(url_for('base'))
+    
+    except Exception as e:
+        db.session.rollback()
+
+        flash('Club not added, rolled back. error: ' + str(e), category='error')
+
+        return redirect(url_for('base'))
+
+
+@app.route('/add_multi_clubs')
+def add_multi_clubs():
+    try:
+        clubs = Club.query.all()
+            
+        for club in clubs:
+            User_subscription.query.filter_by(club_id=club.club_id).delete()
+            Event.query.filter_by(club_id=club.club_id).delete()
+        
+        
+        Club.query.delete()
+
+        club = Club(club_name="Pumpherston", club_url="https://www.pumpherstongolfclub.co.uk/", club_address="Drumshoreland Road, Pumpherston", club_postcode="EH53 0LQ", club_phone_number="01506 433337", approved=True)
+        db.session.add(club)
+
+        club = Club(club_name="Duddingston", club_url="https://www.duddingstongolfclub.co.uk/", club_address="Duddingston Golf Club, Duddingston Road West, Edinburgh", club_postcode="EH15 3QD", club_phone_number="0131 661 4301", approved=True)
+        db.session.add(club)
+
+        db.session.commit()
+
+        flash('Multiple clubs added!', category='success')
+
+        return redirect(url_for('base'))
+    
+    except Exception as e:
+        db.session.rollback()
+
+        flash('Clubs not added, rolled back. error: ' + str(e), category='error')
+
+        return redirect(url_for('base'))
+
+
+@app.route('/delete_clubs')
+def delete_clubs():
+    try:
+        clubs = Club.query.all()
+        
+        for club in clubs:
+            User_subscription.query.filter_by(club_id=club.club_id).delete()
+            Event.query.filter_by(club_id=club.club_id).delete()
+        
+        
+        Club.query.delete()
+        
+        db.session.commit()
+        
+        flash('All clubs deleted!', category='success')
+
+        return redirect(url_for('base'))
+    
+    except Exception as e:
+        db.session.rollback()
+
+        flash('Clubs not deleted, rolled back. error: ' + str(e), category='error')
+
+        return redirect(url_for('base'))
+
 
 
 
@@ -450,7 +598,7 @@ def validate_input(formData, field):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=8080)
 
 
 

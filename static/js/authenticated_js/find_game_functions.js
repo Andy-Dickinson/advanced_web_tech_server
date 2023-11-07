@@ -1,3 +1,4 @@
+// Adds each club as an option in the dropdown box
 async function addDropdownOptions() {
     try {
         const approvedClubs = await fetchApprovedClubData();
@@ -16,15 +17,31 @@ async function addDropdownOptions() {
 }
 
 
-async function displayEvents() {
+async function displayEvents(onLoad) {
     try {
         const open_games = await fetchOpenEvents();
+        const user_subs = await fetchClubSubscriptions();
+
+        console.log("open_games retrieved: ", open_games);
+
+        // Sets selected dropdown option on page load based on if user has subscriptions
+        if (onLoad) {
+            let default_option;
+            
+            if (user_subs.length > 0) {
+                default_option = "sub_option";
+            } else {
+                default_option = "all_option";
+            }
+
+            document.getElementById(default_option).selected = true;
+        }
         
-        list_ele = document.querySelector('.find-game-games');
+        events_board = document.querySelector('.find-game-games');
 
         // Removes any content before updating
-        while (list_ele.firstChild) {
-            list_ele.removeChild(list_ele.firstChild);
+        while (events_board.firstChild) {
+            events_board.removeChild(events_board.firstChild);
         }
 
         header_container = document.createElement('div');
@@ -32,15 +49,15 @@ async function displayEvents() {
         header.className = "text-center";
         header_container.appendChild(header);
         header_container.appendChild(document.createElement('hr'));
-        list_ele.appendChild(header_container);
+        events_board.appendChild(header_container);
 
         if (open_games.length > 0) {
             console.log("open present");
         } else {
             p = document.createElement('p');
             p.className = "col-7 mx-5 col-sm-11 mx-sm-auto";
-            p.textContent = "No open events current. Try creating one."
-            list_ele.appendChild(p);
+            p.textContent = "No open events at present. Try creating one, or changing selected dates and display options."
+            events_board.appendChild(p);
         }
         
     } catch (error) {
@@ -50,4 +67,4 @@ async function displayEvents() {
 
 // Call functions when page loads
 document.addEventListener('DOMContentLoaded', addDropdownOptions);
-document.addEventListener('DOMContentLoaded', displayEvents);
+document.addEventListener('DOMContentLoaded', () => displayEvents(true));

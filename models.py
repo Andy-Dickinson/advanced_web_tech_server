@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
 
     subscriptions = db.relationship('User_subscription', backref='user')
     chats = db.relationship('Chat', backref='user')
-    events = db.relationship('Event', backref='user')
+    events_created = db.relationship('Event', backref='user')
     messages = db.relationship('Message', backref='user')
 
     # function used by flask login
@@ -27,7 +27,7 @@ class User(db.Model, UserMixin):
     
     # string representation
     def __repr__(self):
-        return f'<User id:{self.user_id}, username:{self.username} first:{self.first_name}, surname:{self.surname}, handicap:{self.handicap_index}, email:{self.email}, password:{self.password}, admin:{self.is_admin}, subscriptions_relationship:{self.subscriptions}, chats_relationship:{self.chats}, events_relationship:{self.events}, messages_relationship:{self.messages}>'
+        return f'<User id:{self.user_id}, username:{self.username} first:{self.first_name}, surname:{self.surname}, handicap:{self.handicap_index}, email:{self.email}, password:{self.password}, admin:{self.is_admin}, subscriptions_relationship:{self.subscriptions}, chats_relationship:{self.chats}, events_relationship:{self.events_created}, messages_relationship:{self.messages}>'
     
 
 class User_subscription(db.Model):

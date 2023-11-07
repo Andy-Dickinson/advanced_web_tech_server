@@ -21,7 +21,7 @@ function openModal(modalType) {
     hc_gp.className = "form-group";
     const hc_label = document.createElement("label");
     hc_label.id = "hc_label";
-    hc_label.for = "handicap";
+    hc_label.htmlFor = "handicap";
     // Get current handicap index
     fetch("/update_hc", {
       method: "GET",
@@ -143,6 +143,7 @@ function openModal(modalType) {
             switchLabel.className = "switch";
             const selectInput = document.createElement("input");
             selectInput.type = "checkbox";
+            selectInput.name = "select-all-checkbox"
             selectInput.form = "subs";
             selectInput.checked = isSubscribedToAll;
             // Event listener for the "Select All" switch
@@ -182,6 +183,7 @@ function openModal(modalType) {
             switchLabel.className = "switch";
             const switchInput = document.createElement("input");
             switchInput.type = "checkbox";
+            switchInput.name = "club-checkbox"
             switchInput.className = "club-data"
             switchInput.form = "subs";
             switchInput.dataset.clubName = club.name;

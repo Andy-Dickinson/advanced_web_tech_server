@@ -18,7 +18,7 @@ function openModal(modalType) {
         const user_gp = document.createElement('div');
         user_gp.className = "form-group";
         const user_label = document.createElement('label');
-        user_label.for = "username";
+        user_label.htmlFor = "username";
         user_label.innerHTML = "Username: ";
         user_gp.appendChild(user_label);
         const user_input = document.createElement('input');
@@ -40,7 +40,7 @@ function openModal(modalType) {
         const pw_gp = document.createElement('div');
         pw_gp.className = "form-group";
         const pw_label = document.createElement('label');
-        pw_label.for = "password";
+        pw_label.htmlFor = "password";
         pw_label.innerHTML = "Password: ";
         pw_gp.appendChild(pw_label);
         const pw_input = document.createElement('input');
@@ -129,7 +129,7 @@ function openModal(modalType) {
         const user_gp = document.createElement('div');
         user_gp.className = "form-group";
         const user_label = document.createElement('label');
-        user_label.for = "username";
+        user_label.htmlFor = "username";
         user_label.innerHTML = "Username: ";
         user_gp.appendChild(user_label);
         const user_input = document.createElement('input');
@@ -151,7 +151,7 @@ function openModal(modalType) {
         const fName_gp = document.createElement('div');
         fName_gp.className = "form-group";
         const fName_label = document.createElement('label');
-        fName_label.for = "first_name";
+        fName_label.htmlFor = "first_name";
         fName_label.innerHTML = "First name: ";
         fName_gp.appendChild(fName_label);
         const fName_input = document.createElement('input');
@@ -173,7 +173,7 @@ function openModal(modalType) {
         const sName_gp = document.createElement('div');
         sName_gp.className = "form-group";
         const sName_label = document.createElement('label');
-        sName_label.for = "surname";
+        sName_label.htmlFor = "surname";
         sName_label.innerHTML = "Surname: ";
         sName_gp.appendChild(sName_label);
         const sName_input = document.createElement('input');
@@ -195,7 +195,7 @@ function openModal(modalType) {
         const hc_gp = document.createElement('div');
         hc_gp.className = "form-group";
         const hc_label = document.createElement('label');
-        hc_label.for = "handicap";
+        hc_label.htmlFor = "handicap";
         hc_label.innerHTML = "Handicap Index: ";
         hc_gp.appendChild(hc_label);
         const hc_input = document.createElement('input');
@@ -216,7 +216,7 @@ function openModal(modalType) {
         const email_gp = document.createElement('div');
         email_gp.className = "form-group";
         const email_label = document.createElement('label');
-        email_label.for = "email";
+        email_label.htmlFor = "email";
         email_label.innerHTML = "Email: ";
         email_gp.appendChild(email_label);
         const email_input = document.createElement('input');
@@ -238,7 +238,7 @@ function openModal(modalType) {
         const pw_gp = document.createElement('div');
         pw_gp.className = "form-group";
         const pw_label = document.createElement('label');
-        pw_label.for = "password";
+        pw_label.htmlFor = "password";
         pw_label.innerHTML = "Password: ";
         pw_gp.appendChild(pw_label);
         const pw_input = document.createElement('input');
@@ -260,7 +260,7 @@ function openModal(modalType) {
         const pw2_gp = document.createElement('div');
         pw2_gp.className = "form-group";
         const pw2_label = document.createElement('label');
-        pw2_label.for = "password2";
+        pw2_label.htmlFor = "password2";
         pw2_label.innerHTML = "Confirm password: ";
         pw2_gp.appendChild(pw2_label);
         const pw2_input = document.createElement('input');

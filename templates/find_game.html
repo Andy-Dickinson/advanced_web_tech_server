@@ -27,21 +27,21 @@
                     <form>
                         <div class="form-group">
                             <label for="dropdown" class="bold-input-label">Display open games for:</label>
-                            <select class="form-control" id="dropdown">
-                                <option value="subscribed" selected>Subscribed clubs</option>
-                                <option value="all">All clubs</option>
+                            <select class="form-control text-center form-select" id="dropdown">
+                                <option id="sub_option" value="subscribed">Subscribed clubs</option>
+                                <option id="all_option" value="all">All clubs</option>
                                 <!-- More options added for each club when page loads -->
                             </select>
                             <br />
                             <div class="form-group" id="date-picker-container">
                                 <p for="date-selection" class="bold-input-label my-0">Select Date Range:</p>
                                 <div class="form-group">
-                                    <label for="start-date">Start Date:</label>
-                                    <input type="date" class="form-control" id="start-date" value="{{ current_date }}" min="{{ current_date }}">
+                                    <label for="start-datetime">Start Date:</label>
+                                    <input type="datetime-local" class="form-control text-center" id="start-datetime" value="{{ current_datetime }}" min="{{ current_datetime }}">
                                 </div>
                                 <div class="form-group">
-                                    <label for="end-date">End Date:</label>
-                                    <input type="date" class="form-control" id="end-date" min="{{ current_date }}">
+                                    <label for="end-datetime">End Date:</label>
+                                    <input type="datetime-local" class="form-control text-center" id="end-datetime" min="{{ current_datetime }}">
                                 </div>
                             </div>
                         </form>
