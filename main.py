@@ -463,7 +463,7 @@ def add_events():
                 club_id=5,
                 event_name="Comp",
                 event_description="Wanting to get a group together for a semi serious competition",
-                planned_datetime = datetime.fromisoformat("2024-01-03T09:00"),  # must be date object, this should work when using data sent to server from datetime selectors
+                planned_datetime = datetime.fromisoformat("2024-01-03T09:30"),  # must be date object, this should work when using data sent to server from datetime selectors
                 max_capacity=20,
                 max_hc="28.0",
                 current_participants=1,
@@ -508,7 +508,7 @@ def add_events():
                 club_id=6,
                 planned_datetime = datetime.fromisoformat("2024-01-03T09:00"),  # must be date object, this should work when using data sent to server from datetime selectors
                 max_capacity=4,
-                min_hc=2,
+                min_hc=+2,
                 current_participants=1,
                 tee_time_booked=False,
                 event_open=True,

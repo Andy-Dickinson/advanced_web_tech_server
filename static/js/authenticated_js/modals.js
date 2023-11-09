@@ -169,6 +169,20 @@ function openModal(modalType) {
             scrollContainer.appendChild(row);
             scrollContainer.appendChild(document.createElement("hr"));
         }
+
+        // Sorts alphabetically by club name
+        approved_clubs = approved_clubs.sort((a, b) => {
+          const name_a = a.name.toUpperCase(); 
+          const name_b = b.name.toUpperCase();
+
+          if (name_a < name_b) {
+              return -1;
+          } else if (name_a > name_b) {
+              return 1;
+          } else {
+              return 0; // Club names start with same letter
+          }
+        })
         
         // add toggle switch for each club
         approved_clubs.forEach((club, i) => {

@@ -27,6 +27,7 @@ async function displayEvents(onLoad) {
         const open_events = await fetchOpenEvents();
         const user_subs = await fetchClubSubscriptions();
         const clubs = await fetchApprovedClubData();
+        const hc = Number(await fetchHandicap());
 
         // Sets selected dropdown option on page load based on if user has subscriptions
         if (onLoad) {
@@ -89,13 +90,42 @@ async function displayEvents(onLoad) {
                     events_to_display.push(event);
                 };
             });
+
+            // Sorts by soonest planned date
+            events_to_display = events_to_display.sort((a, b) => {
+                const date_a = new Date(a.planned_date);
+                const date_b = new Date(b.planned_date);
+                return date_a - date_b;
+            });            
             
             // Display events
             events_to_display.forEach((event, i) => {
                 // Link to event chat
                 const chat_link = document.createElement('a');
-                // check users handicap is within range, if none set don't set route, set display message to set handicap to join---------------------------------------------------------------------------------------------------------
-                chat_link.href = '#test?parameter=value';
+                
+                if (hc) {
+                    let min_hc_s = String(event.min_hc);
+                    let max_hc_s = String(event.max_hc);
+
+                    if (min_hc_s.startsWith('+')){
+                        min_hc_s = min_hc_s.replace('+', '-');
+                    }
+
+                    if (max_hc_s.startsWith('+')){
+                        max_hc_s = max_hc_s.replace('+', '-');
+                    }
+
+                    let min_hc_f = parseFloat(min_hc_s);
+                    let max_hc_f = parseFloat(max_hc_s);
+                    // check for when min or max does not exist, also doesn't currently work for any range ------------------------------------------------------
+                    if (min_hc_f <= hc <= max_hc_f) {
+                        chat_link.href = '/add_user_chat?event_id=' + event.id;
+                    } else {
+                        chat_link.onclick = function() {displayAlertMessage('Handicap not in required range to join this event!', true);};
+                    }
+                } else {
+                    chat_link.onclick = function() {displayAlertMessage('Handicap required to join this event!', true);};
+                }
 
                 // First row contains information which will always be in database (nullable=false) - club name, postcode, planned_datetime, participants
                 const row1 = document.createElement('div');
