@@ -91,6 +91,11 @@ function openModal(modalType) {
             hc_input.value = "";
             hc_input.placeholder =
               "Enter your handicap index e.g. +1.5, 15, 25.4";
+
+            // Updates displayed events
+            if (window.location.pathname === '/find_game'){
+              displayEvents(false);
+            }
           }
         })
         .catch((error) => console.error("Error submit function:", error));
@@ -269,6 +274,11 @@ function openModal(modalType) {
                 displayAlertMessage(data.message, false);
                 $("#myModal").modal("hide");
                 toggleNavbarCollapse();
+
+                // Updates displayed events
+                if (window.location.pathname === '/find_game'){
+                  displayEvents(true);  // Changes dropdown to subscribed
+                }
             } else {
                 displayAlertMessage(data.message, true);
             }

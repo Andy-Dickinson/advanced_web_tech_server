@@ -86,7 +86,7 @@ def logout():
     return redirect(url_for('base'))
 
 
-# login route from modal form
+# login route called from modal form
 @app.route('/login', methods=['POST'])
 def login():
 
@@ -113,7 +113,7 @@ def login():
         return jsonify({"success": False, "message": "User does not exist"}), 404
 
 
-# signup route from modal form
+# signup route called from modal form
 @app.route('/signup', methods=['POST'])
 def signup():
     try:
@@ -194,6 +194,7 @@ def signup():
         
         # If validation is successful, redirect to the home page
         return jsonify({"success": True}), 201
+    
     except Exception as e:
         db.session.rollback()
 
@@ -202,7 +203,7 @@ def signup():
         return jsonify({"success": False, "message": "Something went wrong, signup failed, please try again later."}), 500
 
 
-# Find games route
+# Find game route
 @app.route('/find_game', methods=['GET', 'POST'])
 @login_required
 def find_game():
@@ -290,7 +291,7 @@ def user_subs():
     try:
         if request.method == 'GET':
             user_subs = current_user.subscriptions
-
+            
             # Convert subscription objects to dictionaries
             user_subs_data = []
             for sub in user_subs:
@@ -304,24 +305,26 @@ def user_subs():
             return jsonify(user_subs_data), 200
         
         elif request.method == 'POST':
+            # List of club names user wants to subscribe to
             subed_list = request.get_json()['selectedClubs']
             
             # Get list of all approved clubs
             approved_clubs = Club.query.filter_by(approved=True).all()
 
             # Dictionary to map club names to IDs
-            club_name_to_id = {club.club_name: club.club_id for club in approved_clubs}
+            approved_club_name_to_id = {club.club_name: club.club_id for club in approved_clubs}
             
             # Checks if any clubs in subed_list are not in approved list
             for club_name in subed_list:
-                if club_name not in club_name_to_id:
+                if club_name not in approved_club_name_to_id:
+                    # In theory should never trigger as user should only have access to select approved clubs
                     return jsonify({"success": False, "message": f"Club '{club_name}' is not an approved club"}), 400
             
-            # Current user's subscriptions club ids list
+            # Current user's current subscriptions club ids list
             current_user_subs = [sub.club_id for sub in current_user.subscriptions]
-
+            
             # Subscribe user to clubs they are not already subscribed to
-            clubs_to_subscribe = [club_name_to_id[club_name] for club_name in subed_list if club_name_to_id[club_name] not in current_user_subs]
+            clubs_to_subscribe = [approved_club_name_to_id[club_name] for club_name in subed_list if approved_club_name_to_id[club_name] not in current_user_subs]
             for club_id in clubs_to_subscribe:
                 club = Club.query.get(club_id)
                 if club:
@@ -329,7 +332,7 @@ def user_subs():
                     db.session.add(user_subscription)
             
             # Unsubscribe user from clubs not in subed_list which currently subscribed to
-            clubs_to_unsubscribe = [club_id for club_id in current_user_subs if club_id not in [club_name_to_id[name] for name in subed_list]]
+            clubs_to_unsubscribe = [club_id for club_id in current_user_subs if club_id not in [approved_club_name_to_id[name] for name in subed_list]]
             
             for club_id in clubs_to_unsubscribe:
                 user_subscription = User_subscription.query.filter_by(user_id=current_user.user_id, club_id=club_id).first()
@@ -338,7 +341,7 @@ def user_subs():
             
             db.session.commit()
             
-            return jsonify({"success": True, "message": "Subscriptions updated successfully"}), 200
+            return jsonify({"success": True, "message": "Subscriptions updated successfully"}), 201
         
         return None, 405
     
@@ -350,7 +353,7 @@ def user_subs():
         return jsonify({"success": False, "message": "Something went wrong, updating subscriptions failed, please try again later."}), 500
 
 
-# Returns list of all open events in database
+# Returns list of all open events not at capacity in database
 @app.route('/open_events')
 @login_required
 def open_events():
@@ -367,7 +370,7 @@ def open_events():
             "club_id": event.club_id,
             "event_name": event.event_name,
             "description": event.event_description,
-            "planned_date": event.datetime_as_iso(),
+            "planned_date": event.planned_datetime,
             "max_capacity": event.max_capacity,
             "min_hc": event.min_hc,
             "max_hc": event.max_hc,
@@ -379,7 +382,17 @@ def open_events():
     return jsonify(events_data), 200
 
 
-# Testing routes ----------------------------------------------------------------------------------------------------------------------------------------
+'''
+Testing routes ----------------------------------------------------------------------------------------------------------------------------------------
+    * clear_session
+    * clear_request_data
+    * print_tables
+    * add_events
+    * delete_events
+    * add_one_club
+    * add_multi_clubs
+    * delete_clubs
+'''
 @app.route('/clear_session', methods=['GET'])
 def clear_session():
     session.clear()
@@ -401,44 +414,158 @@ def clear_request_data():
     return redirect(url_for('base'))
 
 
+@app.route('/print_tables')
+def print_tables():
+    
+    print("\n\n")
+    print("\nUser table after deleting:", User.query.all())
+    print("\nClub table after deleting:", Club.query.all())
+    print("\nSubscriptions table after deleting:", User_subscription.query.all())
+    print("\nEvents table:", Event.query.all())
+    print("\nChat table:", Chat.query.all())
+    print("\nMessage table:", Message.query.all())
+    print("\n\n")
+
+    return redirect(url_for('base'))
+
+
 @app.route('/add_events')
 def add_events():
     try:
-        event1 = Event(
-            user_id_creator=current_user.id,
-            club_id=1,
-            event_name="Putt around",
-            event_description="Layed back 18 holes",
-            planned_datetime="2023-12-15 12:00:00", 
-            max_capacity=4,
-            current_participants=1,
-            tee_time_booked=False,
-            event_open=True,
-        )
+        # Isolates session
+        with app.app_context():
 
-        event2 = Event(
-            user_id_creator=current_user.id,
-            club_id=2,
-            event_name="9 hole friendly",
-            event_description="Looking to get a few holes played with someone from club",
-            planned_datetime="2023-02-20 14:00:00", 
-            max_capacity=2,
-            min_hc="8.0",
-            max_hc="20.0",
-            current_participants=1,
-            tee_time_booked=False,
-            event_open=True,
-        )
+            event1 = Event(
+                user_id_creator=current_user.user_id,
+                club_id=1,
+                event_name="Putt around",
+                event_description="Layed back 18 holes",
+                planned_datetime=datetime.fromisoformat("2023-11-23T12:00"),  # must be date object, this should work when using data sent to server from datetime selectors
+                max_capacity=4,
+                current_participants=1,
+                tee_time_booked=False,
+                event_open=True,
+            )
 
-        chat1 = Chat(user_id=current_user.user_id, event=event1.event_id)
-        chat2 = Chat(user_id=current_user.user_id, event=event2.event_id)
+            db.session.add(event1)
+            db.session.commit()
+            
+            chat1 = Chat(
+                user_id=current_user.user_id,
+                event_id=event1.event_id
+            )
 
-        db.session.add(event1)
-        db.session.add(event2)
-        db.session.add(chat1)
-        db.session.add(chat2)
+            db.session.add(chat1)
+            db.session.commit()
 
-        db.session.commit()
+            event2 = Event(
+                user_id_creator=current_user.user_id,
+                club_id=5,
+                event_name="Comp",
+                event_description="Wanting to get a group together for a semi serious competition",
+                planned_datetime = datetime.fromisoformat("2024-01-03T09:00"),  # must be date object, this should work when using data sent to server from datetime selectors
+                max_capacity=20,
+                max_hc="28.0",
+                current_participants=1,
+                tee_time_booked=False,
+                event_open=True,
+            )
+            db.session.add(event2)
+            db.session.commit()
+            
+            chat2 = Chat(
+                user_id=current_user.user_id,
+                event_id=event2.event_id
+            )
+            db.session.add(chat2)
+            db.session.commit()
+
+            event3 = Event(
+                user_id_creator=current_user.user_id,
+                club_id=2,
+                event_name="9 hole friendly",
+                event_description="Looking to get a few holes played with someone from club",
+                planned_datetime = datetime.fromisoformat("2023-12-10T10:30"),  # must be date object, this should work when using data sent to server from datetime selectors
+                max_capacity=2,
+                min_hc="8.0",
+                max_hc="20.0",
+                current_participants=1,
+                tee_time_booked=False,
+                event_open=True,
+            )
+            db.session.add(event3)
+            db.session.commit()
+            
+            chat3 = Chat(
+                user_id=current_user.user_id,
+                event_id=event3.event_id
+            )
+            db.session.add(chat3)
+            db.session.commit()
+
+            event4 = Event(
+                user_id_creator=current_user.user_id,
+                club_id=6,
+                planned_datetime = datetime.fromisoformat("2024-01-03T09:00"),  # must be date object, this should work when using data sent to server from datetime selectors
+                max_capacity=4,
+                min_hc=2,
+                current_participants=1,
+                tee_time_booked=False,
+                event_open=True,
+            )
+            db.session.add(event4)
+            db.session.commit()
+            
+            chat4 = Chat(
+                user_id=current_user.user_id,
+                event_id=event4.event_id
+            )
+            db.session.add(chat4)
+            db.session.commit()
+            
+            event5 = Event(
+                user_id_creator=current_user.user_id,
+                club_id=2,
+                event_name="Sunday afternoon",
+                planned_datetime = datetime.fromisoformat("2023-12-03T14:15"),  # must be date object, this should work when using data sent to server from datetime selectors
+                max_capacity=2,
+                min_hc="5.0",
+                current_participants=1,
+                tee_time_booked=False,
+                event_open=True,
+            )
+            db.session.add(event5)
+            db.session.commit()
+            
+            chat5 = Chat(
+                user_id=current_user.user_id,
+                event_id=event5.event_id
+            )
+            db.session.add(chat5)
+            db.session.commit()
+
+            event6 = Event(
+                user_id_creator=current_user.user_id,
+                club_id=2,
+                event_name="Foursomes",
+                event_description="Fancy a foursomes xmas eve?",
+                planned_datetime = datetime.fromisoformat("2023-12-24T10:00"),  # must be date object, this should work when using data sent to server from datetime selectors
+                max_capacity=4,
+                min_hc="0.0",
+                max_hc="54.0",
+                current_participants=1,
+                tee_time_booked=False,
+                event_open=True,
+            )
+            db.session.add(event6)
+            db.session.commit()
+            
+            chat6 = Chat(
+                user_id=current_user.user_id,
+                event_id=event6.event_id
+            )
+            db.session.add(chat6)
+            db.session.commit()
 
         flash('Events added!', category='success')
 
@@ -447,7 +574,34 @@ def add_events():
     except Exception as e:
         db.session.rollback()
 
-        flash('Events not added, rolled back. error: ' + str(e), category='error')
+        print("Error adding events: " + str(e))
+        flash('Events not added, rolled back.', category='error')
+
+        return redirect(url_for('base'))
+    
+
+@app.route('/delete_events')
+def delete_events():
+    try:
+        # Isoloates session
+        with app.app_context():
+            events = Event.query.all()
+            
+            for event in events:
+                Chat.query.filter_by(event_id=event.event_id).delete()
+                Event.query.delete()
+
+            db.session.commit()
+
+        flash('All events deleted!', category='success')
+
+        return redirect(url_for('base'))
+    
+    except Exception as e:
+        db.session.rollback()
+
+        print("Error deleting evetns: " + str(e))
+        flash('Events not deleted, rolled back.', category='error')
 
         return redirect(url_for('base'))
 
@@ -455,20 +609,21 @@ def add_events():
 @app.route('/add_one_club')
 def add_one_club():
     try:
-        clubs = Club.query.all()
+        # Isolates session
+        with app.app_context():
+            clubs = Club.query.all()
+            print("user subs before: ", current_user.subscriptions)
+            for club in clubs:
+                Event.query.filter_by(club_id=club.club_id).delete()
             
-        for club in clubs:
-            User_subscription.query.filter_by(club_id=club.club_id).delete()
-            Event.query.filter_by(club_id=club.club_id).delete()
-        
-        
-        Club.query.delete()
+            
+            Club.query.delete()
 
-        club = Club(club_name="Pumpherston", club_url="https://www.pumpherstongolfclub.co.uk/", club_address="Drumshoreland Road, Pumpherston", club_postcode="EH53 0LQ", club_phone_number="01506 433337", approved=True)
-        db.session.add(club)
+            club = Club(club_name="Pumpherston", club_url="https://www.pumpherstongolfclub.co.uk/", club_address="Drumshoreland Road, Pumpherston", club_postcode="EH53 0LQ", club_phone_number="01506 433337", approved=True)
+            db.session.add(club)
 
-        db.session.commit()
-
+            db.session.commit()
+        print("user subs after: ", current_user.subscriptions)
         flash('Club added!', category='success')
 
         return redirect(url_for('base'))
@@ -476,7 +631,8 @@ def add_one_club():
     except Exception as e:
         db.session.rollback()
 
-        flash('Club not added, rolled back. error: ' + str(e), category='error')
+        print("Error adding club: " + str(e))
+        flash('Club not added, rolled back.', category='error')
 
         return redirect(url_for('base'))
 
@@ -484,22 +640,48 @@ def add_one_club():
 @app.route('/add_multi_clubs')
 def add_multi_clubs():
     try:
-        clubs = Club.query.all()
+        # Isolates session
+        with app.app_context():
+
+            clubs = Club.query.all()
+                
+            for club in clubs:
+                User_subscription.query.filter_by(club_id=club.club_id).delete()
+                Event.query.filter_by(club_id=club.club_id).delete()
             
-        for club in clubs:
-            User_subscription.query.filter_by(club_id=club.club_id).delete()
-            Event.query.filter_by(club_id=club.club_id).delete()
-        
-        
-        Club.query.delete()
+    
 
-        club = Club(club_name="Pumpherston", club_url="https://www.pumpherstongolfclub.co.uk/", club_address="Drumshoreland Road, Pumpherston", club_postcode="EH53 0LQ", club_phone_number="01506 433337", approved=True)
-        db.session.add(club)
+            club = Club(club_name="Pumpherston", club_url="https://www.pumpherstongolfclub.co.uk/", club_address="Drumshoreland Road, Pumpherston", club_postcode="EH53 0LQ", club_phone_number="01506 433337", approved=True)
+            db.session.add(club)
 
-        club = Club(club_name="Duddingston", club_url="https://www.duddingstongolfclub.co.uk/", club_address="Duddingston Golf Club, Duddingston Road West, Edinburgh", club_postcode="EH15 3QD", club_phone_number="0131 661 4301", approved=True)
-        db.session.add(club)
+            club = Club(club_name="Duddingston", club_url="https://www.duddingstongolfclub.co.uk/", club_address="Duddingston Golf Club, Duddingston Road West, Edinburgh", club_postcode="EH15 3QD", club_phone_number="0131 661 4301", approved=True)
+            db.session.add(club)
 
-        db.session.commit()
+            club = Club(club_name="Kings Acre", club_url="https://www.kings-acregolf.com/", club_address="Kings Acre Golf Club, Melville Mains, Lasswade", club_postcode="EH18 1AU", club_phone_number="0131 663 3456", approved=True)
+            db.session.add(club)
+
+            club = Club(club_name="Ratho Park", club_url="https://www.rathoparkgolfclub.co.uk/", club_address="Ratho Park Golf Club Ltd, Edinburgh", club_postcode="EH28 8NX", club_phone_number="0131 335 0068", approved=True)
+            db.session.add(club)
+
+            club = Club(club_name="Musselburgh", club_url="https://www.themusselburghgolfclub.com/", club_address="The Musselburgh Golf Club, Monktonhall, Musselburgh", club_postcode="EH21 6SA", club_phone_number="0131 665 7055", approved=True)
+            db.session.add(club)
+
+            club = Club(club_name="Dalmahoy", club_url="https://www.dalmahoyhotelandcountryclub.co.uk/golf-leisure/golf/golf-at-dalmahoy/", club_address="Dalmahoy Hotel & Country Club, Kirknewton, Edinburgh", club_postcode="EH27 8EB", club_phone_number="0131 333 1845", approved=True)
+            db.session.add(club)
+
+            club = Club(club_name="Murrayfield", club_url="https://www.murrayfieldgolfclub.co.uk/", club_address="Murrayfield Golf Club, 43 Murrayfield Road, Edinburgh", club_postcode="EH12 6EU", club_phone_number="0131 347 9961", approved=True)
+            db.session.add(club)
+
+            club = Club(club_name="Mortonhall", club_url="https://www.mortonhallgc.co.uk/", club_address="Mortonhall Golf Club, 231 Braid Road, Edinburgh", club_postcode="EH10 6PB", club_phone_number="0131 447 6974", approved=True)
+            db.session.add(club)
+
+            club = Club(club_name="Kingsknowe", club_url="https://www.kingsknowe.com/", club_address="Kingsknowe Golf Club, 326 Lanark Road, Edinburgh", club_postcode="EH14 2JD", club_phone_number="0131 441 4030", approved=True)
+            db.session.add(club)
+
+            club = Club(club_name="Craigmillar Park", club_url="https://www.craigmillarpark.co.uk/", club_address="Craigmillar Park Golf Club, 1 Observatory Road, Edinburgh", club_postcode="EH9 3HG", club_phone_number="0131 667 2837", approved=True)
+            db.session.add(club)
+
+            db.session.commit()
 
         flash('Multiple clubs added!', category='success')
 
@@ -508,39 +690,47 @@ def add_multi_clubs():
     except Exception as e:
         db.session.rollback()
 
-        flash('Clubs not added, rolled back. error: ' + str(e), category='error')
+        print("Error adding multi clubs: " +  str(e))
+        flash('Clubs not added, rolled back.', category='error')
 
         return redirect(url_for('base'))
 
 
+# Deletes all clubs, this will also delete any associated subscriptions
+# Note will not delete any associated events
 @app.route('/delete_clubs')
 def delete_clubs():
     try:
-        clubs = Club.query.all()
-        
-        for club in clubs:
-            User_subscription.query.filter_by(club_id=club.club_id).delete()
-            Event.query.filter_by(club_id=club.club_id).delete()
-        
-        
-        Club.query.delete()
-        
-        db.session.commit()
-        
-        flash('All clubs deleted!', category='success')
+        # Isolates session
+        with app.app_context():
+            clubs = Club.query.all()
+            
+            for club in clubs:
+                for subscription in club.subscriptions:
+                    db.session.delete(subscription)
+                db.session.delete(club)
+
+            db.session.commit()
+
+        flash('Clubs deleted!', category='success')
 
         return redirect(url_for('base'))
     
     except Exception as e:
         db.session.rollback()
 
-        flash('Clubs not deleted, rolled back. error: ' + str(e), category='error')
+        print("Error deleting clubs: " + str(e))
+        flash('Clubs not deleted, rolled back.', category='error')
 
         return redirect(url_for('base'))
 
 
 
-
+'''
+------------------------------------------------------------------------------------------------------------------------------------------------
+Other functions below here
+    * validate_input
+'''
 
 
 def validate_input(formData, field):

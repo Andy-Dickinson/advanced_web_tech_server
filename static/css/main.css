@@ -208,3 +208,14 @@ body {
   }
 
 
+/* Find a game page*/
+
+.find-game-board a{
+    text-decoration: none;
+    color: black;
+}
+
+.find-game-board a:hover {
+    color: #1739fe;
+}
+  
