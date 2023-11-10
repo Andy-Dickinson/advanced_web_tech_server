@@ -1,4 +1,4 @@
-function displayAlertMessage(message, error) {
+function displayAlertMessage(message, error, small) {
     const errorContainer = document.getElementById("flash-messages");
     let alert_type;
 
@@ -10,7 +10,10 @@ function displayAlertMessage(message, error) {
 
     // Create a new error alert
     const errorAlert = document.createElement('div');
-    errorAlert.className = "alert " + alert_type + " alert-dismissible fade show modal-error-message fixed-top";
+    errorAlert.className = "alert " + alert_type + " alert-dismissible fade show fixed-top";
+    if (small){
+        errorAlert.className += " small-alert";
+    }
     errorAlert.textContent = message;
     errorAlert.setAttribute('role', 'alert');
 

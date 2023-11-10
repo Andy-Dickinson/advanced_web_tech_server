@@ -41,6 +41,11 @@ async function displayEvents(onLoad) {
 
             document.getElementById(default_option).selected = true;
         };
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth' 
+        });
         
         const events_board = document.querySelector('.find-game-board');
 
@@ -117,15 +122,21 @@ async function displayEvents(onLoad) {
 
                     let min_hc_f = parseFloat(min_hc_s);
                     let max_hc_f = parseFloat(max_hc_s);
-                    // check for when min or max does not exist, also doesn't currently work for any range ------------------------------------------------------
-                    if (min_hc_f <= hc <= max_hc_f) {
-                        chat_link.href = '/add_user_chat?event_id=' + event.id;
+                    
+                    if ((isNaN(min_hc_f) || min_hc_f <= hc) && (isNaN(max_hc_f) || hc <= max_hc_f)) {
+                        chat_link.onclick = function(e) {handleChatLinkClick(e, event);
+                        };
                     } else {
-                        chat_link.onclick = function() {displayAlertMessage('Handicap not in required range to join this event!', true);};
-                    }
+                        chat_link.onclick = function() {displayAlertMessage('Handicap not in required range to join this event!', true, false);};
+                    };
                 } else {
-                    chat_link.onclick = function() {displayAlertMessage('Handicap required to join this event!', true);};
-                }
+                    if (event.min_hc === null && event.max_hc === null){
+                        chat_link.onclick = function (e) { handleChatLinkClick(e, event);
+                        };
+                    } else{
+                        chat_link.onclick = function() {displayAlertMessage('Handicap required to join this event!', true, false);};
+                    };
+                };
 
                 // First row contains information which will always be in database (nullable=false) - club name, postcode, planned_datetime, participants
                 const row1 = document.createElement('div');
@@ -187,13 +198,27 @@ async function displayEvents(onLoad) {
 
                         if (event.min_hc) {
                             const min_hc = document.createElement('div');
-                            min_hc.textContent = ' Min. hc: ' + event.min_hc;
+                            min_hc.className = 'd-flex justify-content-between';
+                            const min_hc_label = document.createElement('div');
+                            min_hc_label.style.whiteSpace = 'pre-wrap';  // Ensures trailing whitespace
+                            min_hc_label.textContent = 'Min. hc: ';
+                            min_hc.appendChild(min_hc_label);
+                            const min_hc_value = document.createElement('div');
+                            min_hc_value.textContent = event.min_hc.toString();
+                            min_hc.appendChild(min_hc_value);
                             hc_col.appendChild(min_hc);
                         }
 
                         if (event.max_hc) {
                             const max_hc = document.createElement('div');
-                            max_hc.textContent = ' Max. hc: ' + event.max_hc;
+                            max_hc.className = 'd-flex justify-content-between';
+                            const max_hc_label = document.createElement('div');
+                            max_hc_label.style.whiteSpace = 'pre-wrap';  // Ensures trailing whitespace
+                            max_hc_label.textContent = 'Max. hc: ';
+                            max_hc.appendChild(max_hc_label);
+                            const max_hc_value = document.createElement('div');
+                            max_hc_value.textContent = event.max_hc.toString();
+                            max_hc.appendChild(max_hc_value);
                             hc_col.appendChild(max_hc);
                         }
 
@@ -241,11 +266,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const dropdown = document.getElementById('dropdown');
     const startDatetime = document.getElementById('start-datetime');
     const endDatetime = document.getElementById('end-datetime');
-    const modal = document.getElementById('')
 
     // Dropdown
     dropdown.addEventListener('change', function () {
-        const selectedValue = dropdown.value;
         displayEvents(false);
     });
 
@@ -272,3 +295,34 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+
+async function handleChatLinkClick(click_event, event) {
+    click_event.preventDefault();
+
+    const formEle = document.getElementById('event_form');
+    formEle.action = '/add_user_chat?event_id=' + String(event.id);
+
+    try {
+        const response = await fetch(formEle.action, {
+            method: 'POST',
+        });
+        
+        const data = await response.json();
+
+        if(!response.ok) {
+            console.log("Error status response due to database updated since events last loaded");
+            if (data.message) {
+                displayAlertMessage(data.message, true, false);
+                displayEvents(false);
+            } else {
+                throw new Error("Failed to add user to chat");
+            };
+        } else {
+            window.location.href = data.route;
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+    };
+};

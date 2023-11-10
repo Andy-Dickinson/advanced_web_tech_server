@@ -65,9 +65,9 @@ function openModal(modalType) {
       e.preventDefault(); // prevents reloading of the page
       const formData = new FormData(form);
 
-      // Does not send if nothing entered
+      // Does not Post if nothing entered
       if (formData.get("handicap").trim() === "") {
-        displayAlertMessage("Please enter a handicap index", true);
+        displayAlertMessage("Please enter a handicap index", true, true);
         return;
       }
 
@@ -79,12 +79,12 @@ function openModal(modalType) {
         .then((response) => response.json())
         .then((data) => {
           if (!data.success) {
-            displayAlertMessage(data.message, true);
+            displayAlertMessage(data.message, true, true);
           }
 
           // Update display and placeholder when successful
           if (data.success) {
-            displayAlertMessage("Handicap index updated to " + data.hc, false);
+            displayAlertMessage("Handicap index updated to " + data.hc, false, true);
             document.getElementById("hc_label").innerHTML =
               "Current handicap index: " + data.hc;
             const hc_input = document.getElementById("handicap");
@@ -285,7 +285,7 @@ function openModal(modalType) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                displayAlertMessage(data.message, false);
+                displayAlertMessage(data.message, false, false);
                 $("#myModal").modal("hide");
                 toggleNavbarCollapse();
 
@@ -294,7 +294,7 @@ function openModal(modalType) {
                   displayEvents(true);  // Changes dropdown to subscribed
                 }
             } else {
-                displayAlertMessage(data.message, true);
+                displayAlertMessage(data.message, true, true);
             }
         })
         .catch(error => {

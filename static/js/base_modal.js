@@ -75,12 +75,12 @@ function openModal(modalType) {
 
             // Does not send if nothing entered
             if (formData.get('username').trim() === '') {
-                displayAlertMessage('Username required', true);
+                displayAlertMessage('Username required', true, true);
                 return;
             }
 
             if (formData.get('password').trim() === '') {
-                displayAlertMessage('Password required', true);
+                displayAlertMessage('Password required', true, true);
                 return;
             }
 
@@ -93,7 +93,7 @@ function openModal(modalType) {
             .then(data => {
                 
                 if (!data.success) {
-                    displayAlertMessage(data.message, true);
+                    displayAlertMessage(data.message, true, true);
                 }
 
                 if(data.success) {
@@ -295,22 +295,22 @@ function openModal(modalType) {
 
             // Does not send if nothing entered
             if (formData.get('username').trim() === '') {  
-                displayAlertMessage('Username required', true);
+                displayAlertMessage('Username required', true, true);
                 return;
             }
 
             if (formData.get('email').trim() === '') {
-                displayAlertMessage('Email required', true);
+                displayAlertMessage('Email required', true, true);
                 return;
             }
 
             if (formData.get('password').trim() === '') {
-                displayAlertMessage('Password required', true);
+                displayAlertMessage('Password required', true, true);
                 return;
             }
 
             if (formData.get('password2').trim() === '') {
-                displayAlertMessage('Confirm password', true);
+                displayAlertMessage('Confirm password', true, true);
                 return;
             }
 
@@ -323,7 +323,7 @@ function openModal(modalType) {
             .then(data => {
                 
                 if (!data.success) {
-                    displayAlertMessage(data.message, true);
+                    displayAlertMessage(data.message, true, true);
                 } 
 
                 if(data.success) {

@@ -94,12 +94,21 @@ body {
     z-index: 9990;
 }
 
-.link {
+a {
     text-decoration: none;
     color: black;
 }
 
-.link:hover {
+a:hover {
+    color: #1739fe;
+}
+
+#event_form a {
+    text-decoration: none;
+    color: black;
+}
+
+#event_form a:hover {
     color: #1739fe;
 }
 
@@ -130,7 +139,7 @@ body {
     transition: opacity 0.5s ease;  
 }
 
-.modal-error-message {
+.small-alert {
     height: 1.8rem;
 }
 
@@ -208,14 +217,4 @@ body {
   }
 
 
-/* Find a game page*/
-
-.find-game-board a{
-    text-decoration: none;
-    color: black;
-}
-
-.find-game-board a:hover {
-    color: #1739fe;
-}
   

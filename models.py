@@ -64,13 +64,14 @@ class Chat(db.Model):
     chat_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.event_id'), unique=True, nullable=False)
+    active = db.Column(db.Boolean, default=True, nullable=False)
 
     messages = db.relationship('Message', backref='chat', cascade='all, delete-orphan')
     event = db.relationship('Event', back_populates='chat', uselist=False, cascade='all, delete-orphan', single_parent=True)
 
     # string representation
     def __repr__(self):
-        return f'<Chat chat_id:{self.chat_id}, user_id:{self.user_id}, event_id:{self.event_id}, messages_relationship:{self.messages}, event_relationship:{self.event}>'
+        return f'<Chat chat_id:{self.chat_id}, user_id:{self.user_id}, event_id:{self.event_id}, active:{self.active}, messages_relationship:{self.messages}, event_relationship:{self.event}>'
 
 
 class Message(db.Model):
@@ -79,11 +80,10 @@ class Message(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
     message = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now(), nullable=False)
-    active = db.Column(db.Boolean, default=True, nullable=False)
 
     # string representation
     def __repr__(self):
-        return f'<Message message_id:{self.message_id}, chat_id:{self.chat_id}, user_id:{self.user_id}, message:{self.message}, timestamp (in local time):{self.timestamp}, active:{self.active})>'
+        return f'<Message message_id:{self.message_id}, chat_id:{self.chat_id}, user_id:{self.user_id}, message:{self.message}, timestamp (in local time):{self.timestamp})>'
 
 
 class Event(db.Model):

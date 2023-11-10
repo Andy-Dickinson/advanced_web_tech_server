@@ -51,7 +51,7 @@ def load_user(user_id):
 #     if request.endpoint != 'base':
 #         if not current_user.is_authenticated:
 #             flash("Please log in to access this page", category="error")
-#             return None
+#             return ''
 
 #     # Return the user if they are logged in
 #     return current_user
@@ -204,19 +204,14 @@ def signup():
 
 
 # Find game route
-@app.route('/find_game', methods=['GET', 'POST'])
+@app.route('/find_game')
 @login_required
 def find_game():
     home_link_url = '/home'
     current_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M")
-    
-    if request.method == 'GET':
-        return render_template('find_game.html', home_link_url=home_link_url, current_datetime=current_datetime), 200
-    
-    if request.method == 'POST':
-        return None, 201
-    
-    return None, 405
+
+    return render_template('find_game.html', home_link_url=home_link_url, current_datetime=current_datetime), 200
+
 
 
 # update handicap
@@ -248,7 +243,7 @@ def update_hc():
 
             return jsonify({"success": True, "hc": new_hc}), 201
             
-        return None, 405
+        return 'Method not allowed', 405
     
     except Exception as e:
         db.sessionn.rollback()
@@ -343,7 +338,7 @@ def user_subs():
             
             return jsonify({"success": True, "message": "Subscriptions updated successfully"}), 201
         
-        return None, 405
+        return 'Method not allowed', 405
     
     except Exception as e:
         db.sessionn.rollback()
@@ -383,7 +378,111 @@ def open_events():
 
 
 '''
+Adds user to chat they click on an event in find_game
+Validation checks done prior to adding
+Redirection occurs in find_game_function handleChatLinkClick if successfully added to chat
+'''
+@app.route('/add_user_chat', methods=['POST'])
+@login_required
+def add_user_chat():
+    
+    event_id = int(request.args.get('event_id'))
+
+    event = Event.query.filter_by(event_id=event_id).first()
+
+    # Validation checks encase database has been updated
+    if not event:
+        return jsonify({'message': "Sorry, this event has been deleted!"}), 404
+
+    if event.current_participants >= event.max_capacity:
+        return jsonify({'message': "Sorry, this event is now at full capacity"}), 409
+    
+    if not event.event_open:
+        return jsonify({'message': "Sorry, this event is now closed!"}), 403
+    
+    if event.min_hc or event.max_hc:
+        hc = current_user.handicap_index
+
+        if not hc:
+            return jsonify({'message': "You need a handicap to join this event!"}), 409
+        
+        if hc.startswith('+'):
+            hc = '-' + hc[1:]
+        hc_f = float(hc)
+        
+        if event.min_hc:
+            min_hc_s = event.min_hc
+            if min_hc_s.startswith('+'):
+                min_hc_s = '-' + event.min_hc[1:]
+            min_hc_f = float(min_hc_s)
+
+            if hc_f < min_hc_f:
+                return jsonify({'message': "Handicap too low for event!"}), 409
+            
+        if event.max_hc:
+            max_hc_s = event.max_hc
+            if max_hc_s.startswith('+'):
+                max_hc_s = '-' + event.max_hc[1:]
+            max_hc_f = float(max_hc_s)
+
+            if hc_f > max_hc_f:
+                return jsonify({'message': "Handicap too high for event!"}), 409
+
+    chat = Chat.query.filter_by(event_id=event_id).first()
+    user_message = Message.query.filter_by(chat_id=chat.chat_id, user_id=current_user.user_id).first()
+    print("chat: ", chat)
+    if user_message:
+        return jsonify({'message': "You are already signed up to this event!"}), 409
+
+
+    # Adds user to chat
+    new_message = Message(
+        chat_id=chat.chat_id,
+        user_id=current_user.user_id,
+        message=current_user.username + " joined the chat."
+    )
+
+    # Add the message to the database
+    db.session.add(new_message)
+    db.session.commit()
+
+    flash("Joined event!", category='success')
+
+    return jsonify({'route':'my_game_chats?load_chat=' + str(chat.chat_id)})
+
+
+'''
+Chat page to display all users chats and messages
+Optional parameter load_chat (chat_id) to load a specific chat
+'''
+@app.route('/my_game_chats', methods=['GET', 'POST'])
+@login_required
+def my_game_chats():
+    print("method: ", request.method)
+    print("request: ", request)
+    if request.method == 'GET':
+        # Load chat if load_chat present(check for load_chat in jinja if) (in html)------------------------------------------------------------------------
+        chat_id = request.args.get('load_chat')
+
+        try:
+            return render_template('my_game_chats.html', user=current_user, load_chat=chat_id), 200
+        except Exception as e:
+            print(f"Error rendering template: {e}")
+    
+    if request.method == 'POST':
+        
+        # POST used for adding messages to db
+
+        return '', 200
+    
+    return 'Method not allowed', 405
+
+
+'''
 Testing routes ----------------------------------------------------------------------------------------------------------------------------------------
+Setup to easily add and remove data along with clearing session and request_data from address bar. 
+For production, these routes should be replaced with proper POST / DELETE routes and only called by admin or from dedicated forms.
+Routes:
     * clear_session
     * clear_request_data
     * print_tables
@@ -393,7 +492,7 @@ Testing routes -----------------------------------------------------------------
     * add_multi_clubs
     * delete_clubs
 '''
-@app.route('/clear_session', methods=['GET'])
+@app.route('/clear_session')
 def clear_session():
     session.clear()
 
@@ -440,7 +539,7 @@ def add_events():
                 club_id=1,
                 event_name="Putt around",
                 event_description="Layed back 18 holes",
-                planned_datetime=datetime.fromisoformat("2023-11-23T12:00"),  # must be date object, this should work when using data sent to server from datetime selectors
+                planned_datetime=datetime.fromisoformat("2023-12-23T12:00"),  # must be date object, this should work when using data sent to server from datetime selectors
                 max_capacity=4,
                 current_participants=1,
                 tee_time_booked=False,
@@ -456,6 +555,15 @@ def add_events():
             )
 
             db.session.add(chat1)
+            db.session.commit()
+
+            message1 = Message(
+                chat_id=chat1.chat_id,
+                user_id=current_user.user_id,
+                message=current_user.username + " created the event."
+            )
+
+            db.session.add(message1)
             db.session.commit()
 
             event2 = Event(
@@ -480,15 +588,24 @@ def add_events():
             db.session.add(chat2)
             db.session.commit()
 
+            message2 = Message(
+                chat_id=chat2.chat_id,
+                user_id=current_user.user_id,
+                message=current_user.username + " created the event."
+            )
+
+            db.session.add(message2)
+            db.session.commit()
+
             event3 = Event(
                 user_id_creator=current_user.user_id,
                 club_id=2,
                 event_name="9 hole friendly",
                 event_description="Looking to get a few holes played with someone from club",
-                planned_datetime = datetime.fromisoformat("2023-12-10T10:30"),  # must be date object, this should work when using data sent to server from datetime selectors
+                planned_datetime = datetime.fromisoformat("2024-01-10T10:30"),  # must be date object, this should work when using data sent to server from datetime selectors
                 max_capacity=2,
-                min_hc="8.0",
-                max_hc="20.0",
+                min_hc="15.0",
+                max_hc="28.0",
                 current_participants=1,
                 tee_time_booked=False,
                 event_open=True,
@@ -503,12 +620,21 @@ def add_events():
             db.session.add(chat3)
             db.session.commit()
 
+            message3 = Message(
+                chat_id=chat3.chat_id,
+                user_id=current_user.user_id,
+                message=current_user.username + " created the event."
+            )
+
+            db.session.add(message3)
+            db.session.commit()
+
             event4 = Event(
                 user_id_creator=current_user.user_id,
                 club_id=6,
-                planned_datetime = datetime.fromisoformat("2024-01-03T09:00"),  # must be date object, this should work when using data sent to server from datetime selectors
+                planned_datetime = datetime.fromisoformat("2024-01-05T09:00"),  # must be date object, this should work when using data sent to server from datetime selectors
                 max_capacity=4,
-                min_hc=+2,
+                min_hc="+2.0",
                 current_participants=1,
                 tee_time_booked=False,
                 event_open=True,
@@ -522,12 +648,21 @@ def add_events():
             )
             db.session.add(chat4)
             db.session.commit()
+
+            message4 = Message(
+                chat_id=chat4.chat_id,
+                user_id=current_user.user_id,
+                message=current_user.username + " created the event."
+            )
+
+            db.session.add(message4)
+            db.session.commit()
             
             event5 = Event(
                 user_id_creator=current_user.user_id,
                 club_id=2,
                 event_name="Sunday afternoon",
-                planned_datetime = datetime.fromisoformat("2023-12-03T14:15"),  # must be date object, this should work when using data sent to server from datetime selectors
+                planned_datetime = datetime.fromisoformat("2023-12-30T14:15"),  # must be date object, this should work when using data sent to server from datetime selectors
                 max_capacity=2,
                 min_hc="5.0",
                 current_participants=1,
@@ -544,6 +679,15 @@ def add_events():
             db.session.add(chat5)
             db.session.commit()
 
+            message5 = Message(
+                chat_id=chat5.chat_id,
+                user_id=current_user.user_id,
+                message=current_user.username + " created the event."
+            )
+
+            db.session.add(message5)
+            db.session.commit()
+
             event6 = Event(
                 user_id_creator=current_user.user_id,
                 club_id=2,
@@ -551,7 +695,7 @@ def add_events():
                 event_description="Fancy a foursomes xmas eve?",
                 planned_datetime = datetime.fromisoformat("2023-12-24T10:00"),  # must be date object, this should work when using data sent to server from datetime selectors
                 max_capacity=4,
-                min_hc="0.0",
+                min_hc="+3.0",
                 max_hc="54.0",
                 current_participants=1,
                 tee_time_booked=False,
@@ -565,6 +709,15 @@ def add_events():
                 event_id=event6.event_id
             )
             db.session.add(chat6)
+            db.session.commit()
+
+            message6 = Message(
+                chat_id=chat6.chat_id,
+                user_id=current_user.user_id,
+                message=current_user.username + " created the event."
+            )
+
+            db.session.add(message6)
             db.session.commit()
 
         flash('Events added!', category='success')
@@ -588,8 +741,20 @@ def delete_events():
             events = Event.query.all()
             
             for event in events:
+                chats = Chat.query.filter_by(event_id=event.event_id).all()
+
+                for chat in chats:
+                    # Delete all messages associated with the chat
+                    Message.query.filter_by(chat_id=chat.chat_id).delete()
+                
+                # Delete chats associated with the event
                 Chat.query.filter_by(event_id=event.event_id).delete()
-                Event.query.delete()
+
+                # Commit before deleteing event
+                db.session.commit()
+
+                # Delete event itself
+                Event.query.filter_by(event_id=event.event_id).delete()
 
             db.session.commit()
 
