@@ -3,13 +3,7 @@ set09103 Advanced Web Tech code
 
 
 static dir
-    - stores static files such as images and css
+    - stores static files such as images (incl. icons), fonts, css and javascript as well as the favicon
 
 templates dir
     - stores html template files
-
-etc dir
-    - stores config files (for Flask / app)
-
-var dir
-    - stores log files
