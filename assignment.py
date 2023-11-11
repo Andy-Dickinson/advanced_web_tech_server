@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify, session
 from flask_login import login_required, current_user, LoginManager, login_user, logout_user
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from os import path
 from models import db, User, User_subscription, Club, Chat, Message, Event
