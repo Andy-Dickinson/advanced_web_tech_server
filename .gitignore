@@ -32,7 +32,6 @@ tags
 # .nfs files are created when an open file is removed but is still being accessed
 .nfs*
 
-instance/*
 !instance/.gitignore
 .webassets-cache
 .env
@@ -99,7 +98,6 @@ db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
-instance/
 .webassets-cache
 
 # Scrapy stuff:
