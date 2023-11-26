@@ -1,5 +1,6 @@
 {% extends "base.html" %} 
 
+<!-- replaces modal scripts in base -->
 {% block modal_script %}
     <script src="{{ url_for('static', filename='js/authenticated_js/modals.js') }}"></script>  
     <script src="{{ url_for('static', filename='js/authenticated_js/fetch_functions.js') }}"></script>
@@ -10,7 +11,6 @@
         <a class="nav-link" href="{{ url_for('my_game_chats') }}">My game chats</a>
     </li>
     <li class="nav-item">
-        <!-- need link for find game ----------------------------------------------------------------------------------------------------------- -->
         <a class="nav-link" href="{{ url_for('find_game') }}">Find a game</a>
     </li> 
     <li class="nav-item"><a class="nav-link" href="#contact" onclick="toggleNavbarCollapse()">Contact</a></li>
@@ -31,9 +31,6 @@
         <div class="header-content">
             <h1>Tee Time Hub</h1>
             <h2>Empowering Your Play:<br/>The Ultimate Event Coordinator!</h2>
-        </div>
-        <div class="header-button">
-            <a class="btn btn-primary" onclick="openModal('login')">Get Started</a>
         </div>
     </header>
 {% endblock %}

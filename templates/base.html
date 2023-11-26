@@ -30,6 +30,9 @@
         <script src="{{ url_for('static', filename='js/base_modal.js') }}"></script>
     {% endblock %}
 
+    {% block additional_scripts %}
+    {% endblock %}
+
     <title>
         {% block title %}
             Home

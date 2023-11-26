@@ -209,7 +209,7 @@ def find_game():
     home_link_url = '/home'
     current_datetime = datetime.now().strftime("%Y-%m-%dT%H:%M")
 
-    return render_template('find_game.html', home_link_url=home_link_url, current_datetime=current_datetime), 200
+    return render_template('find_game.html', user=current_user, home_link_url=home_link_url, current_datetime=current_datetime), 200
 
 
 
@@ -427,16 +427,23 @@ def add_user_chat():
             if hc_f > max_hc_f:
                 return jsonify({'message': "Handicap too high for event!"}), 409
 
-    chat = Chat.query.filter_by(event_id=event_id).first()
-    user_message = Message.query.filter_by(chat_id=chat.chat_id, user_id=current_user.user_id).first()
-    print("chat: ", chat)
-    if user_message:
+    chat = Chat.query.filter_by(event_id=event.event_id, user_id=current_user.user_id).first()
+    
+    if chat:
         return jsonify({'message': "You are already signed up to this event!"}), 409
 
 
     # Adds user to chat
+    new_chat = Chat(
+        user_id=current_user.user_id,
+        event_id=event.event_id
+    )
+
+    db.session.add(new_chat)
+    db.session.commit()
+
     new_message = Message(
-        chat_id=chat.chat_id,
+        event_id=event.event_id,
         user_id=current_user.user_id,
         message=current_user.username + " joined the chat."
     )
@@ -447,7 +454,7 @@ def add_user_chat():
 
     flash("Joined event!", category='success')
 
-    return jsonify({'route':'my_game_chats?load_chat=' + str(chat.chat_id)})
+    return jsonify({'route':'my_game_chats?load_chat=' + str(new_chat.event_id)})
 
 
 '''
@@ -457,14 +464,34 @@ Optional parameter load_chat (chat_id) to load a specific chat
 @app.route('/my_game_chats', methods=['GET', 'POST'])
 @login_required
 def my_game_chats():
-    print("method: ", request.method)
-    print("request: ", request)
+    
     if request.method == 'GET':
-        # Load chat if load_chat present(check for load_chat in jinja if) (in html)------------------------------------------------------------------------
-        chat_id = request.args.get('load_chat')
+        
+        # Event id to load if passed in request
+        event_id = request.args.get('load_chat')
+        if event_id:
+            event_id = int(event_id)
 
+        home_link_url = '/home'
+        
+        # All chats which user is a member
+        users_chats = Chat.query.filter_by(user_id=current_user.user_id).all()
+        
+        # User information
+        users_in_chats = {}
+
+        # Get all users in chats
+        for chat in users_chats:
+            for message in chat.messages:
+                # Get user's
+                user_id = message.user_id
+                user_username = User.query.get(user_id).username
+
+                # Adds users to dictionary
+                users_in_chats[user_id] = user_username
+        
         try:
-            return render_template('my_game_chats.html', user=current_user, load_chat=chat_id), 200
+            return render_template('my_game_chats.html', user=current_user, home_link_url=home_link_url, load_chat=event_id, users_chats=users_chats, chat_users=users_in_chats), 200
         except Exception as e:
             print(f"Error rendering template: {e}")
     
@@ -547,7 +574,7 @@ def add_events():
 
             db.session.add(event1)
             db.session.commit()
-            
+
             chat1 = Chat(
                 user_id=current_user.user_id,
                 event_id=event1.event_id
@@ -557,7 +584,7 @@ def add_events():
             db.session.commit()
 
             message1 = Message(
-                chat_id=chat1.chat_id,
+                event_id=chat1.event_id,
                 user_id=current_user.user_id,
                 message=current_user.username + " created the event."
             )
@@ -588,7 +615,7 @@ def add_events():
             db.session.commit()
 
             message2 = Message(
-                chat_id=chat2.chat_id,
+                event_id=chat2.event_id,
                 user_id=current_user.user_id,
                 message=current_user.username + " created the event."
             )
@@ -620,7 +647,7 @@ def add_events():
             db.session.commit()
 
             message3 = Message(
-                chat_id=chat3.chat_id,
+                event_id=chat3.event_id,
                 user_id=current_user.user_id,
                 message=current_user.username + " created the event."
             )
@@ -649,14 +676,14 @@ def add_events():
             db.session.commit()
 
             message4 = Message(
-                chat_id=chat4.chat_id,
+                event_id=chat4.event_id,
                 user_id=current_user.user_id,
                 message=current_user.username + " created the event."
             )
 
             db.session.add(message4)
             db.session.commit()
-            
+
             event5 = Event(
                 user_id_creator=current_user.user_id,
                 club_id=2,
@@ -679,7 +706,7 @@ def add_events():
             db.session.commit()
 
             message5 = Message(
-                chat_id=chat5.chat_id,
+                event_id=chat5.event_id,
                 user_id=current_user.user_id,
                 message=current_user.username + " created the event."
             )
@@ -711,7 +738,7 @@ def add_events():
             db.session.commit()
 
             message6 = Message(
-                chat_id=chat6.chat_id,
+                event_id=chat6.event_id,
                 user_id=current_user.user_id,
                 message=current_user.username + " created the event."
             )
@@ -744,7 +771,7 @@ def delete_events():
 
                 for chat in chats:
                     # Delete all messages associated with the chat
-                    Message.query.filter_by(chat_id=chat.chat_id).delete()
+                    Message.query.filter_by(event_id=chat.event_id).delete()
                 
                 # Delete chats associated with the event
                 Chat.query.filter_by(event_id=event.event_id).delete()
@@ -776,7 +803,7 @@ def add_one_club():
         # Isolates session
         with app.app_context():
             clubs = Club.query.all()
-            print("user subs before: ", current_user.subscriptions)
+            
             for club in clubs:
                 Event.query.filter_by(club_id=club.club_id).delete()
             
@@ -787,7 +814,7 @@ def add_one_club():
             db.session.add(club)
 
             db.session.commit()
-        print("user subs after: ", current_user.subscriptions)
+        
         flash('Club added!', category='success')
 
         return redirect(url_for('base'))

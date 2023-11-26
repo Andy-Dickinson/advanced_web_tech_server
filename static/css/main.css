@@ -7,7 +7,7 @@
 
 .mainheader{
     padding: 15rem 0 3rem;
-    min-height: 35rem;
+    min-height: 100vh;
     background-image: url('/static/img/main_background_gs.jpg');
     background-position: center;
     background-repeat: no-repeat;
@@ -66,6 +66,18 @@
     background:#a6b3ff;
 }
 
+.game_content {
+    min-height: 80vh;
+}
+
+.author {
+    font-size: smaller;
+}
+
+.timestamp {
+    font-size: x-small;
+}
+
 
 body {
     font-family: Nunito, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif, Apple; 
@@ -82,7 +94,7 @@ body {
     letter-spacing: 0.15rem;
     border: 0;
     background: linear-gradient(180deg, #0221CF, #6a7dec);
-  }
+}
 
 
 .bold-input-label {
@@ -168,15 +180,15 @@ a:hover {
     display: inline-block;
     width: 50px;
     height: 24px;
-  }
+}
   
-  .switch input { 
+.switch input { 
     opacity: 0;
     width: 0;
     height: 0;
-  }
+}
   
-  .slider {
+.slider {
     position: absolute;
     cursor: pointer;
     top: 0;
@@ -187,9 +199,9 @@ a:hover {
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 24px;
-  }
+}
   
-  .slider:before {
+.slider:before {
     position: absolute;
     content: "";
     height: 20px;
@@ -200,21 +212,20 @@ a:hover {
     -webkit-transition: .4s;
     transition: .4s;
     border-radius: 50%;
-  }
+}
   
-  input:checked + .slider {
+input:checked + .slider {
     background-color: #2196F3;
-  }
+}
   
-  input:focus + .slider {
+input:focus + .slider {
     box-shadow: 0 0 1px #2196F3;
-  }
+}
   
-  input:checked + .slider:before {
+input:checked + .slider:before {
     -webkit-transform: translateX(26px);
     -ms-transform: translateX(26px);
     transform: translateX(26px);
-  }
+}
 
 
-  

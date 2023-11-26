@@ -96,160 +96,168 @@ async function displayEvents(onLoad) {
                 };
             });
 
-            // Sorts by soonest planned date
+            // Sorts by earliest planned date
             events_to_display = events_to_display.sort((a, b) => {
                 const date_a = new Date(a.planned_date);
                 const date_b = new Date(b.planned_date);
                 return date_a - date_b;
             });            
             
-            // Display events
-            events_to_display.forEach((event, i) => {
-                // Link to event chat
-                const chat_link = document.createElement('a');
-                
-                if (hc) {
-                    let min_hc_s = String(event.min_hc);
-                    let max_hc_s = String(event.max_hc);
-
-                    if (min_hc_s.startsWith('+')){
-                        min_hc_s = min_hc_s.replace('+', '-');
-                    }
-
-                    if (max_hc_s.startsWith('+')){
-                        max_hc_s = max_hc_s.replace('+', '-');
-                    }
-
-                    let min_hc_f = parseFloat(min_hc_s);
-                    let max_hc_f = parseFloat(max_hc_s);
+            if (events_to_display.length > 0) {
+                // Display events
+                events_to_display.forEach((event, i) => {
+                    // Link to event chat
+                    const chat_link = document.createElement('a');
                     
-                    if ((isNaN(min_hc_f) || min_hc_f <= hc) && (isNaN(max_hc_f) || hc <= max_hc_f)) {
-                        chat_link.onclick = function(e) {handleChatLinkClick(e, event);
+                    if (hc) {
+                        let min_hc_s = String(event.min_hc);
+                        let max_hc_s = String(event.max_hc);
+
+                        if (min_hc_s.startsWith('+')){
+                            min_hc_s = min_hc_s.replace('+', '-');
+                        }
+
+                        if (max_hc_s.startsWith('+')){
+                            max_hc_s = max_hc_s.replace('+', '-');
+                        }
+
+                        let min_hc_f = parseFloat(min_hc_s);
+                        let max_hc_f = parseFloat(max_hc_s);
+                        
+                        if ((isNaN(min_hc_f) || min_hc_f <= hc) && (isNaN(max_hc_f) || hc <= max_hc_f)) {
+                            chat_link.onclick = function(e) {handleChatLinkClick(e, event);
+                            };
+                        } else {
+                            chat_link.onclick = function() {displayAlertMessage('Handicap not in required range to join this event!', true, false);};
                         };
                     } else {
-                        chat_link.onclick = function() {displayAlertMessage('Handicap not in required range to join this event!', true, false);};
-                    };
-                } else {
-                    if (event.min_hc === null && event.max_hc === null){
-                        chat_link.onclick = function (e) { handleChatLinkClick(e, event);
+                        if (event.min_hc === null && event.max_hc === null){
+                            chat_link.onclick = function (e) { handleChatLinkClick(e, event);
+                            };
+                        } else{
+                            chat_link.onclick = function() {displayAlertMessage('Handicap required to join this event!', true, false);};
                         };
-                    } else{
-                        chat_link.onclick = function() {displayAlertMessage('Handicap required to join this event!', true, false);};
                     };
-                };
 
-                // First row contains information which will always be in database (nullable=false) - club name, postcode, planned_datetime, participants
-                const row1 = document.createElement('div');
-                row1.className = 'd-flex flex-wrap justify-content-between mx-auto';
-                const club_name = document.createElement('div');
-                club_name.className = 'px-2 py-1 order-1';
-                const postcode = document.createElement('div');
-                postcode.className = 'px-2 py-1 order-2';
-                for (var i=0; i<clubs.length;i++){
-                    if (clubs[i].id === event.club_id){
-                        club_name.textContent = clubs[i].name;
-                        postcode.textContent = clubs[i].postcode;
-                        break;
+                    // First row contains information which will always be in database (nullable=false) - club name, postcode, planned_datetime, participants
+                    const row1 = document.createElement('div');
+                    row1.className = 'd-flex flex-wrap justify-content-between mx-auto';
+                    const club_name = document.createElement('div');
+                    club_name.className = 'px-2 py-1 order-1';
+                    const postcode = document.createElement('div');
+                    postcode.className = 'px-2 py-1 order-2';
+                    for (var i=0; i<clubs.length;i++){
+                        if (clubs[i].id === event.club_id){
+                            club_name.textContent = clubs[i].name;
+                            postcode.textContent = clubs[i].postcode;
+                            break;
+                        };
                     };
-                };
-                row1.appendChild(club_name);
-                row1.appendChild(postcode);
-                const scheduled = document.createElement('div');
-                scheduled.className = 'px-2 py-1 order-3';
-                scheduled.textContent = event.planned_date.slice(0,22);
-                row1.appendChild(scheduled);
-                const participants = document.createElement('div');
-                participants.className = 'px-2 py-1 order-4';
-                const icon = document.createElement('i');
-                icon.className = 'fa-solid fa-user';
-                participants.appendChild(icon);
-                const participants_text = document.createElement('span');
-                participants_text.textContent = " " + event.current_participants + "/" + event.max_capacity;
-                participants.appendChild(participants_text);
-                row1.appendChild(participants);
-                chat_link.appendChild(row1);
+                    row1.appendChild(club_name);
+                    row1.appendChild(postcode);
+                    const scheduled = document.createElement('div');
+                    scheduled.className = 'px-2 py-1 order-3';
+                    scheduled.textContent = event.planned_date.slice(0,22);
+                    row1.appendChild(scheduled);
+                    const participants = document.createElement('div');
+                    participants.className = 'px-2 py-1 order-4';
+                    const icon = document.createElement('i');
+                    icon.className = 'fa-solid fa-user';
+                    participants.appendChild(icon);
+                    const participants_text = document.createElement('span');
+                    participants_text.textContent = " " + event.current_participants + "/" + event.max_capacity;
+                    participants.appendChild(participants_text);
+                    row1.appendChild(participants);
+                    chat_link.appendChild(row1);
 
-                // Row 2 contains optional information, event name, min and max handicap restrictions
-                if (event.event_name || event.min_hc || event.max_hc) {
+                    // Row 2 contains optional information, event name, min and max handicap restrictions
+                    if (event.event_name || event.min_hc || event.max_hc) {
+                        
+                        const row2 = document.createElement('div');
+                        row2.className = 'd-flex flex-wrap justify-content-between mx-auto';
+                        if (event.event_name) {
+                            const event_name = document.createElement('div');
+                            event_name.className = 'd-flex align-items-center justify-content-center px-2 py-1 order-1';
+                            event_name.textContent = event.event_name;
+                            row2.appendChild(event_name);
+                        }
+                        if (event.min_hc || event.max_hc) {
+                            if (!event.event_name){
+                                row2.className = 'd-flex flex-wrap justify-content-end mx-auto'
+                            }
+                            const hc_restriction = document.createElement('div');
+                            hc_restriction.className = 'd-flex px-2 py-1 order-2';
+                            const icon_col = document.createElement('div');
+                            icon_col.className = 'd-flex align-items-center justify-content-center p-2'
+                            const hc_icon = document.createElement('i');
+                            hc_icon.className = "fa-solid fa-golf-ball-tee";
+                            icon_col.appendChild(hc_icon);
+                            hc_restriction.appendChild(icon_col);
+
+                            const hc_col = document.createElement('div');
+                            hc_col.className = 'd-flex flex-column'
+
+                            if (event.min_hc) {
+                                const min_hc = document.createElement('div');
+                                min_hc.className = 'd-flex justify-content-between';
+                                const min_hc_label = document.createElement('div');
+                                min_hc_label.style.whiteSpace = 'pre-wrap';  // Ensures trailing whitespace
+                                min_hc_label.textContent = 'Min. hc: ';
+                                min_hc.appendChild(min_hc_label);
+                                const min_hc_value = document.createElement('div');
+                                min_hc_value.textContent = event.min_hc.toString();
+                                min_hc.appendChild(min_hc_value);
+                                hc_col.appendChild(min_hc);
+                            }
+
+                            if (event.max_hc) {
+                                const max_hc = document.createElement('div');
+                                max_hc.className = 'd-flex justify-content-between';
+                                const max_hc_label = document.createElement('div');
+                                max_hc_label.style.whiteSpace = 'pre-wrap';  // Ensures trailing whitespace
+                                max_hc_label.textContent = 'Max. hc: ';
+                                max_hc.appendChild(max_hc_label);
+                                const max_hc_value = document.createElement('div');
+                                max_hc_value.textContent = event.max_hc.toString();
+                                max_hc.appendChild(max_hc_value);
+                                hc_col.appendChild(max_hc);
+                            }
+
+                            hc_restriction.appendChild(hc_col);
+                            row2.appendChild(hc_restriction);
+                        }
+
+                        chat_link.appendChild(row2);
+
+                        // Row 3 contains optional event description
+                        if(event.description) {
+                            const row3 = document.createElement('div');
+                            row3.className = 'd-flex flex-wrap justify-content-start mx-auto';
+                            const description = document.createElement('div');
+                            description.className = 'px-2 py-1 order-1';
+                            description.textContent = event.description;
+                            row3.appendChild(description);
+                            chat_link.appendChild(row3);
+                        }
+                    }
+                    events_board.appendChild(chat_link);
                     
-                    const row2 = document.createElement('div');
-                    row2.className = 'd-flex flex-wrap justify-content-between mx-auto';
-                    if (event.event_name) {
-                        const event_name = document.createElement('div');
-                        event_name.className = 'd-flex align-items-center justify-content-center px-2 py-1 order-1';
-                        event_name.textContent = event.event_name;
-                        row2.appendChild(event_name);
-                    }
-                    if (event.min_hc || event.max_hc) {
-                        if (!event.event_name){
-                            row2.className = 'd-flex flex-wrap justify-content-end mx-auto'
-                        }
-                        const hc_restriction = document.createElement('div');
-                        hc_restriction.className = 'd-flex px-2 py-1 order-2';
-                        const icon_col = document.createElement('div');
-                        icon_col.className = 'd-flex align-items-center justify-content-center p-2'
-                        const hc_icon = document.createElement('i');
-                        hc_icon.className = "fa-solid fa-golf-ball-tee";
-                        icon_col.appendChild(hc_icon);
-                        hc_restriction.appendChild(icon_col);
-
-                        const hc_col = document.createElement('div');
-                        hc_col.className = 'd-flex flex-column'
-
-                        if (event.min_hc) {
-                            const min_hc = document.createElement('div');
-                            min_hc.className = 'd-flex justify-content-between';
-                            const min_hc_label = document.createElement('div');
-                            min_hc_label.style.whiteSpace = 'pre-wrap';  // Ensures trailing whitespace
-                            min_hc_label.textContent = 'Min. hc: ';
-                            min_hc.appendChild(min_hc_label);
-                            const min_hc_value = document.createElement('div');
-                            min_hc_value.textContent = event.min_hc.toString();
-                            min_hc.appendChild(min_hc_value);
-                            hc_col.appendChild(min_hc);
-                        }
-
-                        if (event.max_hc) {
-                            const max_hc = document.createElement('div');
-                            max_hc.className = 'd-flex justify-content-between';
-                            const max_hc_label = document.createElement('div');
-                            max_hc_label.style.whiteSpace = 'pre-wrap';  // Ensures trailing whitespace
-                            max_hc_label.textContent = 'Max. hc: ';
-                            max_hc.appendChild(max_hc_label);
-                            const max_hc_value = document.createElement('div');
-                            max_hc_value.textContent = event.max_hc.toString();
-                            max_hc.appendChild(max_hc_value);
-                            hc_col.appendChild(max_hc);
-                        }
-
-                        hc_restriction.appendChild(hc_col);
-                        row2.appendChild(hc_restriction);
-                    }
-
-                    chat_link.appendChild(row2);
-
-                    // Row 3 contains optional event description
-                    if(event.description) {
-                        const row3 = document.createElement('div');
-                        row3.className = 'd-flex flex-wrap justify-content-start mx-auto';
-                        const description = document.createElement('div');
-                        description.className = 'px-2 py-1 order-1';
-                        description.textContent = event.description;
-                        row3.appendChild(description);
-                        chat_link.appendChild(row3);
-                    }
-                }
-                events_board.appendChild(chat_link);
-                
-                if (event.id !== events_to_display[events_to_display.length-1].id){
-                    events_board.appendChild(document.createElement('hr'));
-                };
-            });
+                    if (event.id !== events_to_display[events_to_display.length-1].id){
+                        events_board.appendChild(document.createElement('hr'));
+                    };
+                });
+            } else {
+                // When nothing to display based on selections and subscriptions
+                p = document.createElement('p');
+                p.className = "col-7 mx-5 col-sm-11 mx-sm-auto";
+                p.textContent = "No events at present. Try creating one, or changing selected dates and display options."
+                events_board.appendChild(p);
+            }
         } else {
             // When nothing to display
             p = document.createElement('p');
             p.className = "col-7 mx-5 col-sm-11 mx-sm-auto";
-            p.textContent = "No open events at present. Try creating one, or changing selected dates and display options."
+            p.textContent = "No open events at present. Try creating one, or try again later."
             events_board.appendChild(p);
         };
         

@@ -1,8 +1,10 @@
 {% extends "home.html" %} 
 
-<!-- maintains scripts defined in home.html -->
-{% block modal_script %}
-    {{ super() }}
+{% block title %}
+    Find a game
+{% endblock %}
+
+{% block additional_scripts %}
     <script src="{{ url_for('static', filename='js/authenticated_js/find_game_functions.js') }}"></script>
 {% endblock %}
 
@@ -12,7 +14,7 @@
             <h1 class="display-6">Find a game</h1>
     </header>
 
-    <section class="find-game content">
+    <section class="find-game game_content">
         <div class="row">
             <div class="col-12 col-sm-4 p-0 find-game-options">
                 <div class="text-center">
