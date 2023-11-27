@@ -58,6 +58,16 @@
     color: #1739fe
 }
 
+.navbar-brand {
+    height: 5vh;
+    padding: 0;
+}
+
+.navbar-brand img {
+    height: 100%;
+    object-fit: contain;
+}
+
 .dropdown-menu {
     background: linear-gradient(180deg, #a6b3ff, #d8defe);
 }

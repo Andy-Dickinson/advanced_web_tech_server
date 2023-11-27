@@ -18,6 +18,7 @@
     <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Account</a>
         <ul class="dropdown-menu">
+        <li class="dropdown-item disabled">{{ user.username }}:</li>
         <li><a class="dropdown-item" onclick="openModal('subs')">Manage subscriptions</a></li>
         <li><a class="dropdown-item" onclick="openModal('hc')">Update handicap</a></li>
         <li><hr class="dropdown-divider"></li>
@@ -28,10 +29,32 @@
 
 
 {% block content %} 
-    <header class="mainheader">
-        <div class="header-content">
-            <h1>Tee Time Hub</h1>
-            <h2>Empowering Your Play:<br/>The Ultimate Event Coordinator!</h2>
+<section class="home-content header">
+    <a href="{{ url_for('find_game') }}" class="p-0">
+        <div class="home-find-game row my-4 d-flex flex-wrap justify-content-center">
+            <div class="find-game-img col-10 col-sm-6 p-0 order-1 d-flex justify-content-center" style="max-width: 591px;">
+                <img src="{{ url_for('static', filename='img/find_game_img.png') }}" alt="Find a game image" class="img-fluid">
+            </div>
+            <div class="col-10 col-sm-4 d-flex flex-column justify-content-center align-items-center p-0 bg-black order-2">
+                <div class="find-game-info text-center text-white p-5">
+                    <h4>Find a game</h4>
+                    <p>Get together with a group right for you, and get out on the course today!</p>
+                </div>
+            </div>
         </div>
-    </header>
+    </a>
+    <a href="{{ url_for('my_game_chats') }}" class="p-0">
+        <div class="home-find-game row my-4 d-flex flex-wrap justify-content-center">
+            <div class="col-10 col-sm-4 d-flex flex-column justify-content-center align-items-center p-0 bg-black order-1">
+                <div class="find-game-info text-center text-white p-5">
+                    <h4>Game conversations</h4>
+                    <p>Get organised here. Arrange when, where and if to stop at the 19th hole!</p>
+                </div>
+            </div>
+            <div class="find-game-img col-10 col-sm-6 p-0 order-2 d-flex justify-content-center" style="max-width: 591px;">
+                <img src="{{ url_for('static', filename='img/game_chats_img.png') }}" alt="Find a game image" class="img-fluid">
+            </div>
+        </div>
+    </a>
+</section>
 {% endblock %}

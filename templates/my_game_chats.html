@@ -25,7 +25,19 @@
                 <div class="d-flex flex-wrap justify-content-center">
                 {% for chat in users_chats %}
                     <a onclick='disconnectAndNavigate("{{ chat.event_id }}")' class="chat-box link col-10 col-sm-8 mx-auto mx-sm-0 my-0 p-2 border rounded text-start {% if chat.event_id == load_chat %} loaded_chat {% endif %}" {% if chat.event_id == load_chat %} id='{{ load_chat }}' {% endif %}>
-                        {{ chat.event.event_name }}
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                {{ club_info[chat.event.club_id] }}
+                            </div>
+                            <div>
+                                {{ chat.event.planned_datetime.strftime('%d-%m-%Y %H:%M') }}
+                            </div>
+                        </div>
+                        {% if chat.event.event_name %}
+                        <div>
+                            {{ chat.event.event_name }}
+                        </div>
+                        {% endif %} 
                     </a>
                 {% endfor %}
                 

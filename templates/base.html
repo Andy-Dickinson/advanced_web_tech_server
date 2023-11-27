@@ -45,7 +45,7 @@
     <!-- navbar - uses bootstrap classes -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top" id="mainnav">
       <div class="container px-4 px-lg-5" id="navbar">
-        <a class="navbar-brand" {% block home_link %} href="{{ home_link_url }}" {% endblock %}>Tee Time Hub</a>
+        <a class="navbar-brand" {% block home_link %} href="{{ home_link_url }}" {% endblock %}><img class="logo" src="{{ url_for('static', filename='img/logo.png') }}" alt="Your Alt Text">  Tee Time Hub</a>
         <!-- button extends navbar for mobile devices / small window -->
         <button
           type="button"

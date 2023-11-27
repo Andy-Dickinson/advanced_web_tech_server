@@ -481,6 +481,7 @@ def my_game_chats():
         
         # User information
         users_in_chats = {}
+        club_info = {}
 
         # Get all users in users chats
         for chat in users_chats:
@@ -491,9 +492,11 @@ def my_game_chats():
 
                 # Adds users to dictionary
                 users_in_chats[user_id] = user_username
+            club = Club.query.filter_by(club_id=chat.event.club_id).first()
+            club_info[chat.event.club_id] = club.club_name
         
         try:
-            return render_template('my_game_chats.html', user=current_user, home_link_url=home_link_url, load_chat=event_id, users_chats=users_chats, chat_users=users_in_chats), 200
+            return render_template('my_game_chats.html', user=current_user, home_link_url=home_link_url, load_chat=event_id, users_chats=users_chats, chat_users=users_in_chats, club_info=club_info), 200
         except Exception as e:
             print(f"Error rendering template: {e}")
 
@@ -550,8 +553,6 @@ def my_game_chats():
 
             db.session.add(new_message)
             db.session.commit()
-
-            print("message added")
 
             return jsonify({'status': 'success', 'message': 'Message submitted successfully', 'timestamp': timestamp}), 200
         except Exception as e:
