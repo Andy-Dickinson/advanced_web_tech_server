@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", function() {
 // Socket IO functions below here
 
 // Establish a SocketIO connection
-const socket = io.connect('http://127.0.0.1:8080');
+const socket = io.connect('webtech-2324-15.napier.ac.uk');
 
 
 function connectToRoom(chat_id) {
