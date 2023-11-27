@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify, session
 from flask_login import login_required, current_user, LoginManager, login_user, logout_user
+from flask_socketio import SocketIO, join_room, leave_room
 from sqlalchemy import and_
 from os import path
 from models import db, User, User_subscription, Club, Chat, Message, Event
@@ -38,6 +39,7 @@ def create_app():
 
 
 app = create_app()
+socketio = SocketIO(app)
 
 
 @login_manager.user_loader
@@ -480,7 +482,7 @@ def my_game_chats():
         # User information
         users_in_chats = {}
 
-        # Get all users in chats
+        # Get all users in users chats
         for chat in users_chats:
             for message in chat.messages:
                 # Get user's
@@ -494,14 +496,87 @@ def my_game_chats():
             return render_template('my_game_chats.html', user=current_user, home_link_url=home_link_url, load_chat=event_id, users_chats=users_chats, chat_users=users_in_chats), 200
         except Exception as e:
             print(f"Error rendering template: {e}")
+
+            return jsonify({"success": False, "message": "Something went wrong, please try again later."}), 500
     
     if request.method == 'POST':
-        
-        # POST used for adding messages to db
+        new_message_input = request.form.get('new_message_input')
+        chat_id = request.form.get('chat_id')
 
-        return '', 200
-    
+        
+        # All chat users which relate to this event chat
+        chat_users = Chat.query.filter_by(event_id=chat_id).all()
+        
+        # Validation checks
+        if not chat_users:
+            return jsonify({"success": False, "message": "No chat users found."}), 400
+        
+        if not new_message_input or not new_message_input.strip():
+            return jsonify({"success": False, "message": "Message cannot be empty or contain only whitespace."}), 400
+
+        if len(new_message_input) > 1000:
+            return jsonify({"success": False, "message": "Message exceeds maximum length of 1000 characters."}), 400
+
+
+        # User information
+        users_in_chat = {}
+
+        # Get all users in users chats
+        for chat in chat_users:
+            for message in chat.messages:
+                # Get user's
+                user_id = message.user_id
+                user_username = User.query.get(user_id).username
+
+                # Adds users to dictionary
+                users_in_chat[user_id] = user_username
+        
+        try:
+            new_message = Message(
+                event_id=int(chat_id),
+                user_id=current_user.user_id,
+                message=new_message_input
+            )
+
+            timestamp = datetime.now().strftime('%d-%m-%Y %H:%M')
+            # Sends message and details to all chat users
+            socketio.emit('message', {
+                'author': current_user.username,
+                'author_id': current_user.user_id,
+                'message': new_message_input,
+                'timestamp': timestamp
+            }, room=chat_id)
+
+
+            db.session.add(new_message)
+            db.session.commit()
+
+            print("message added")
+
+            return jsonify({'status': 'success', 'message': 'Message submitted successfully', 'timestamp': timestamp}), 200
+        except Exception as e:
+            print(f"Error adding new message: {e}")
+
+            return jsonify({"success": False, "message": "Something went wrong, please try again later."}), 500
+            
     return 'Method not allowed', 405
+
+
+@socketio.on('join_room')
+@login_required
+def join_chat_room(data):
+    room = data['load_chat']
+    if room:
+        join_room(room)
+        print("user: ", current_user.user_id, " joined room ", room)
+
+
+@socketio.on('leave_room')
+def leave_chat_room(data):
+    curr_room = data['leave_room']
+    if curr_room:
+        leave_room(curr_room)
+        print("user: ", current_user.user_id, " left room ", curr_room)
 
 
 '''

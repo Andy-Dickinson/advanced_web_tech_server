@@ -79,7 +79,7 @@ class Message(db.Model):
     message_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     event_id = db.Column(db.Integer, db.ForeignKey('chat.event_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'), nullable=False)
-    message = db.Column(db.Text, nullable=False)
+    message = db.Column(db.Text(1000), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.now(), nullable=False)
 
     # string representation

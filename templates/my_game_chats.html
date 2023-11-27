@@ -5,6 +5,7 @@
 {% endblock %}
 
 {% block additional_scripts %}
+    <script src="{{ url_for('static', filename='js/socket.io/socket.io.js') }}" crossorigin="anonymous"></script>
     <script src="{{ url_for('static', filename='js/authenticated_js/game_chat_functions.js') }}">
     </script>
 {% endblock %}
@@ -19,11 +20,11 @@
         
         <div class="row">
 
+            <!-- List of users chats -->
             <div class="col-12 col-sm-4 p-sm-0 p-4 game_chat_list">
                 <div class="d-flex flex-wrap justify-content-center">
                 {% for chat in users_chats %}
-                    
-                    <a href="{{ url_for('my_game_chats', load_chat=chat.event_id) }}" class="chat-box link col-10 col-sm-8 mx-auto mx-sm-0 my-0 p-2 border rounded text-start">
+                    <a onclick='disconnectAndNavigate("{{ chat.event_id }}")' class="chat-box link col-10 col-sm-8 mx-auto mx-sm-0 my-0 p-2 border rounded text-start {% if chat.event_id == load_chat %} loaded_chat {% endif %}" {% if chat.event_id == load_chat %} id='{{ load_chat }}' {% endif %}>
                         {{ chat.event.event_name }}
                     </a>
                 {% endfor %}
@@ -33,84 +34,55 @@
 
             
 
-            <div class="col-12 col-sm-7 p-sm-0 p-4 messages">
-                {% if load_chat %}
+            <div class="col-12 col-sm-7 p-sm-0 p-4 message-window">
+                <div class="messages">
+                    <!-- Loads chat messages -->
+                    {% if load_chat %}
                     {% for chat in users_chats %}
-                        {% if chat.event_id == load_chat %}
-                            {% for message in chat.messages %}
-                                {% if message.user_id == user.user_id %}
-                                <div class='d-flex flex-wrap justify-content-end my-3'>
+                    {% if chat.event_id == load_chat %}
+                    {% for message in chat.messages %}
+                    {% if message.user_id == user.user_id %}
+                    <!-- When user is author, puts message to right -->
+                    <div class='d-flex flex-wrap justify-content-end my-3'>
 
-                                {% else %}
-                                <div class='d-flex flex-wrap justify-content-start'>
-                                    
-                                    <div class="author col-10 col-sm-8 d-flex flex-wrap justify-content-start px-1">{{ chat_users[message.user_id] }}</div>
-                                    
-                                {% endif %}
-                                    <div class="chat-box border rounded col-10 col-sm-8 d-flex flex-column">
-                                        <div class="px-2 d-flex flex-wrap justify-content-start">{{ message.message }}</div>
-                                            
-                                        <div class="px-2 d-flex justify-content-end timestamp">{{ message.timestamp.strftime('%d-%m-%Y %H:%M') }}</div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+                    {% else %}
+                        <!-- For other users, adds authors username and puts message to left -->
+                    <div class='d-flex flex-wrap justify-content-start'>
+                        
+                        <div class="author col-10 col-sm-8 d-flex flex-wrap justify-content-start px-1">{{ chat_users[message.user_id] }}</div>
+                                        
+                    {% endif %}
+                        <!-- Adds message and timestamp -->
+                        <div class="message-box border rounded col-10 col-sm-8 d-flex flex-column">
+                            <div class="px-2 d-flex flex-wrap justify-content-start">{{ message.message }}</div>
+                                
+                            <div class="px-2 d-flex justify-content-end timestamp">{{ message.timestamp.strftime('%d-%m-%Y %H:%M') }}</div>
+                        </div>
+                    </div>
                     {% endfor %}
-
-                {% else %}
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <form id="new_message_form" method="POST" class="col-12 p-sm-0 p-4 my-4 d-flex align-items-center">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="new_message_input" name="new_message_input" placeholder="Type a message">
+                        <input type="hidden" id="chat_id" name="chat_id" value="{{ load_chat }}">
+                        <button id="submit_message" class="btn btn-primary"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+                    </div>
+                </form>
+                    {% else %}
+                    <!-- Alt message when no chat to load -->
                     <div class="d-flex flex-wrap justify-content-start my-3">
                         <div class="chat-box border rounded col-10 col-sm-8 d-flex flex-column">
                             <div class="px-2 d-flex flex-wrap justify-content-start">Select a chat</div>
                         </div>
                     </div>
-                {% endif %}
+                </div>
+                    {% endif %}
             </div>
         </div>
     </section>
-    
+    <div style="display: none;" id="user-id" data-user-id="{{ user.user_id }}"></div>
     <br />
 {% endblock %}
 
-
-
-
-<!-- <div class="row">
-    <div class="col-12 col-sm-4 p-0 find-game-options">
-        <div class="text-center">
-            <a href="#create_a_game">
-            <button class="btn btn-primary col-10 mx-auto col-sm-8 p-2">Create a game</button>
-            </a>
-        </div>
-        <div class="col-10 col-sm-8 mx-auto my-2 text-center">
-            <a href="#add_club" class="link">Club not listed? Click here to add</a>
-        </div>
-        <div class="col-8 mx-auto text-center">
-            <form>
-                <div class="form-group">
-                    <label for="dropdown" class="bold-input-label">Display open games for:</label>
-                    <select class="form-control text-center form-select" id="dropdown">
-                        <option id="sub_option" value="subscribed" onclick="displayEvents(false);">Subscribed clubs</option>
-                        <option id="all_option" value="all">All clubs</option>
-                    </select>
-                    <br />
-                    <div class="form-group" id="date-picker-container">
-                        <p for="date-selection" class="bold-input-label my-0">Select Date Range:</p>
-                        <div class="form-group">
-                            <label for="start-datetime">Start Date:</label>
-                            <input type="datetime-local" class="form-control text-center" id="start-datetime" value="{{ current_datetime }}" min="{{ current_datetime }}">
-                        </div>
-                        <div class="form-group">
-                            <label for="end-datetime">End Date:</label>
-                            <input type="datetime-local" class="form-control text-center" id="end-datetime" min="{{ current_datetime }}">
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-    <form id="event_form" method="POST" class="col-12 col-sm-7 p-sm-0 p-4">
-        <div class="find-game-board"> 
-        </div>
-    </form>
-</div> -->

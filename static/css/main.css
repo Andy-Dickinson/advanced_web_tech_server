@@ -67,7 +67,7 @@
 }
 
 .game_content {
-    min-height: 80vh;
+    min-height: 70vh;
 }
 
 .author {
@@ -76,6 +76,33 @@
 
 .timestamp {
     font-size: x-small;
+}
+
+
+.game_chat_list, .messages {
+    height: 64vh; 
+    overflow-y: hidden;
+}
+
+.game_chat_list:hover, .messages:hover {
+    overflow-y: auto;
+}
+
+.message-window {
+    height: 75vh;
+    position: relative;
+}
+
+#new_message_form {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.loaded_chat {
+    background-color: #a9a9a94d;
+    font-weight: bold;
+    opacity: 0.5;
 }
 
 
@@ -94,6 +121,14 @@ body {
     letter-spacing: 0.15rem;
     border: 0;
     background: linear-gradient(180deg, #0221CF, #6a7dec);
+}
+
+
+#submit_message {
+    height: 6vh;
+    font-size: 100%;
+    padding: 0.8rem 0.5rem;
+    width: 10%;
 }
 
 

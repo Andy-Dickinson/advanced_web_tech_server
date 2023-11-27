@@ -3,7 +3,8 @@
 <!-- replaces modal scripts in base -->
 {% block modal_script %}
     <script src="{{ url_for('static', filename='js/authenticated_js/modals.js') }}"></script>  
-    <script src="{{ url_for('static', filename='js/authenticated_js/fetch_functions.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/authenticated_js/fetch_functions.js') }}">
+    </script>
 {% endblock %}
 
 {% block nav_items %}
