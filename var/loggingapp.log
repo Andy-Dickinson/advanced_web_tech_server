@@ -1,0 +1,25 @@
+INFO | 2023-11-27 14:54:45,507 | assignment | logout | User 1 logged out 
+INFO | 2023-11-27 15:10:20,225 | assignment | login | User 1 logged in
+INFO | 2023-11-27 15:10:26,901 | assignment | user_subs | User 1 changed subscriptions
+INFO | 2023-11-27 15:10:35,103 | assignment | user_subs | User 1 changed subscriptions
+INFO | 2023-11-27 15:10:41,885 | assignment | join_chat_room | User 1 joined room 1
+INFO | 2023-11-27 15:10:52,177 | assignment | user_subs | User 1 changed subscriptions
+INFO | 2023-11-27 15:10:54,891 | assignment | leave_chat_room | User 1 left room 1
+INFO | 2023-11-27 15:11:14,775 | assignment | update_hc | User 1 updated handicap 
+INFO | 2023-11-27 15:11:25,353 | assignment | join_chat_room | User 1 joined room 1
+INFO | 2023-11-27 15:11:26,672 | assignment | leave_chat_room | User 1 left room 1
+INFO | 2023-11-27 15:11:32,074 | assignment | logout | User 1 logged out
+INFO | 2023-11-27 15:11:38,072 | assignment | login | User 2 logged in
+INFO | 2023-11-27 15:11:49,549 | assignment | join_chat_room | User 2 joined room 1
+INFO | 2023-11-27 15:11:52,446 | assignment | my_game_chats | User 2 added a message
+INFO | 2023-11-27 15:12:13,122 | assignment | logout | User 2 logged out
+INFO | 2023-11-27 15:12:20,817 | assignment | login | User 1 logged in
+INFO | 2023-11-27 15:12:25,976 | assignment | leave_chat_room | User 2 left room 1
+INFO | 2023-11-27 15:12:39,284 | assignment | login | User 2 logged in
+INFO | 2023-11-27 15:12:43,959 | assignment | join_chat_room | User 2 joined room 1
+INFO | 2023-11-27 15:12:49,493 | assignment | join_chat_room | User 1 joined room 1
+INFO | 2023-11-27 15:12:56,985 | assignment | my_game_chats | User 1 added a message
+INFO | 2023-11-27 15:13:01,612 | assignment | leave_chat_room | User 1 left room 1
+INFO | 2023-11-27 15:13:01,621 | assignment | logout | User 1 logged out
+INFO | 2023-11-27 15:13:04,564 | assignment | leave_chat_room | User 2 left room 1
+INFO | 2023-11-27 15:13:04,572 | assignment | logout | User 2 logged out

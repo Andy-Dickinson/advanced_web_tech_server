@@ -1,6 +1,9 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify, session
 from flask_login import login_required, current_user, LoginManager, login_user, logout_user
 from flask_socketio import SocketIO, join_room, leave_room
+import configparser
+import logging
+from logging.handlers import RotatingFileHandler
 from sqlalchemy import and_
 from os import path
 from models import db, User, User_subscription, Club, Chat, Message, Event
@@ -38,8 +41,41 @@ def create_app():
     return app
 
 
+def init_config(app):
+    config = configparser.ConfigParser()
+    try:
+        config_location = "etc/logging.cfg"
+        config.read(config_location)
+
+        # gets value for each key from config file, then stores these in app.config object  
+        app.config['DEBUG'] = config.get("config", "debug")
+        app.config['ip_address'] = config.get("config", "ip_address")
+        app.config['port'] = config.get("config", "port")
+        app.config['url'] = config.get("config", "url")
+
+        app.config['log_file'] = config.get("logging", "name")
+        app.config['log_location'] = config.get("logging", "location")
+        app.config['log_level'] = config.get("logging", "level")
+    except:
+        print("Could not read configs from: ", config_location)
+
+
+def logs(app):
+    log_pathname = app.config['log_location'] + app.config['log_file']
+    file_handler = RotatingFileHandler(log_pathname, maxBytes=1024 * 1024 * 10, backupCount=1024)
+    file_handler.setLevel(app.config['log_level'])
+    # defines log message format: level | timestamp | module name | function name | message
+    formatter = logging.Formatter("%(levelname)s | %(asctime)s | %(module)s | %(funcName)s | %(message)s")
+    file_handler.setFormatter(formatter)
+    app.logger.setLevel( app.config['log_level'] )
+    app.logger.addHandler(file_handler)
+
+
 app = create_app()
 socketio = SocketIO(app)
+init_config(app)
+logs(app)
+
 
 
 @login_manager.user_loader
@@ -83,6 +119,7 @@ def home():
 @app.route('/logout')
 @login_required
 def logout():
+    app.logger.info("User " +  str(current_user.user_id) + " logged out")
     logout_user()
     return redirect(url_for('base'))
 
@@ -103,6 +140,7 @@ def login():
         if stored_pw == bcrypt.hashpw(password.encode('utf-8'), stored_pw):
 
             login_user(user, remember=True)
+            app.logger.info("User " +  str(current_user.user_id) + " logged in")
 
             flash('Logged in!', category='success')
             
@@ -190,6 +228,7 @@ def signup():
         db.session.commit()
         
         login_user(new_user, remember=True)
+        app.logger.info("New user " +  str(current_user.user_id) + " signed up")
         
         flash('Account created!', category='success')
         
@@ -200,6 +239,7 @@ def signup():
         db.session.rollback()
 
         print("Signup failed, rolled back, error: " + str(e))
+        app.logger.error("New user attempted to sign up, error: " + str(e))
 
         return jsonify({"success": False, "message": "Something went wrong, signup failed, please try again later."}), 500
 
@@ -242,6 +282,8 @@ def update_hc():
             current_user.handicap_index = new_hc
             db.session.commit()
 
+            app.logger.info("User " + str(current_user.user_id) + " updated handicap ")
+
             return jsonify({"success": True, "hc": new_hc}), 201
             
         return 'Method not allowed', 405
@@ -250,6 +292,7 @@ def update_hc():
         db.sessionn.rollback()
 
         print("Updating of handicap failed, rolled back, error: " + str(e))
+        app.logger.error("User attempted to change handicap, error: " + str(e))
 
         return jsonify({"success": False, "message": "Something went wrong, updating of handicap failed, please try again later."}), 500
         
@@ -336,6 +379,8 @@ def user_subs():
                     db.session.delete(user_subscription)
             
             db.session.commit()
+
+            app.logger.info("User " + str(current_user.user_id) + " changed subscriptions")
             
             return jsonify({"success": True, "message": "Subscriptions updated successfully"}), 201
         
@@ -345,6 +390,7 @@ def user_subs():
         db.sessionn.rollback()
 
         print("Updating subscriptions failed, rolled back, error: " + str(e))
+        app.logger.error("User attempted to change subscriptions, error: " + str(e))
 
         return jsonify({"success": False, "message": "Something went wrong, updating subscriptions failed, please try again later."}), 500
 
@@ -454,6 +500,8 @@ def add_user_chat():
     db.session.add(new_message)
     db.session.commit()
 
+    app.logger.info("User " + str(current_user.user_id) + " added to chat for event " + str(event.event_id))
+
     flash("Joined event!", category='success')
 
     return jsonify({'route':'my_game_chats?load_chat=' + str(new_chat.event_id)})
@@ -499,6 +547,7 @@ def my_game_chats():
             return render_template('my_game_chats.html', user=current_user, home_link_url=home_link_url, load_chat=event_id, users_chats=users_chats, chat_users=users_in_chats, club_info=club_info), 200
         except Exception as e:
             print(f"Error rendering template: {e}")
+            app.logger.error("Error rendering game chats route, error: " + str(e))
 
             return jsonify({"success": False, "message": "Something went wrong, please try again later."}), 500
     
@@ -554,9 +603,12 @@ def my_game_chats():
             db.session.add(new_message)
             db.session.commit()
 
+            app.logger.info("User " + str(current_user.user_id) + " added a message")
+
             return jsonify({'status': 'success', 'message': 'Message submitted successfully', 'timestamp': timestamp}), 200
         except Exception as e:
             print(f"Error adding new message: {e}")
+            app.logger.error("User attempted to add a message, error: " + str(e))
 
             return jsonify({"success": False, "message": "Something went wrong, please try again later."}), 500
             
@@ -569,6 +621,7 @@ def join_chat_room(data):
     room = data['load_chat']
     if room:
         join_room(room)
+        app.logger.info("User " + str(current_user.user_id) + " joined room " + str(room))
         print("user: ", current_user.user_id, " joined room ", room)
 
 
@@ -577,6 +630,7 @@ def leave_chat_room(data):
     curr_room = data['leave_room']
     if curr_room:
         leave_room(curr_room)
+        app.logger.info("User " + str(current_user.user_id) + " left room " + str(curr_room))
         print("user: ", current_user.user_id, " left room ", curr_room)
 
 
