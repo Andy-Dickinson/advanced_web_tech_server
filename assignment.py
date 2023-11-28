@@ -490,6 +490,10 @@ def add_user_chat():
     db.session.add(new_chat)
     db.session.commit()
 
+    # Update current participants field in Event
+    event.current_participants += 1
+    db.session.commit()
+
     new_message = Message(
         event_id=event.event_id,
         user_id=current_user.user_id,
@@ -1100,9 +1104,6 @@ def validate_input(formData, field):
             return 'Invalid email. (Enter a valid email address)'
     
     return ''  # Validation passed
-
-
-
 
 
 
