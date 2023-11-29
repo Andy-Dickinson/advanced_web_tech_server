@@ -112,7 +112,8 @@ def base():
 @app.route('/home')
 @login_required
 def home():
-    return render_template('home.html', user=current_user), 200
+    home_link_url = '#page-top'
+    return render_template('home.html', user=current_user, home_link_url=home_link_url), 200
 
 
 # logout route
