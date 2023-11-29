@@ -1070,7 +1070,7 @@ def validate_input(formData, field):
             return 'Invalid username. (Use only letters and numbers)'
     
     elif field == 'password':
-        password_pattern = r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9\s])[^s]{8,}$"
+        password_pattern = r"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9\s])[^\s]{8,}$"
         if len(formData) < 8:
             return 'Too short. (Minimum 8 characters)'
         elif not re.match(password_pattern, formData):
